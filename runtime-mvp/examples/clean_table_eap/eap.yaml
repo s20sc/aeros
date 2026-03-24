@@ -1,0 +1,11 @@
+id: com.eapos.clean_table
+version: 1.0.0
+description: Table cleaning capability
+
+skills:
+  - clean.plan
+  - clean.wipe
+  - clean.organize
+
+resources:
+  cpu: low
