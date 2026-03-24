@@ -1,0 +1,20 @@
+{
+  "type": "object",
+  "required": ["id", "version", "skills"],
+  "properties": {
+    "id": { "type": "string" },
+    "version": { "type": "string" },
+    "description": { "type": "string" },
+    "skills": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "resources": {
+      "type": "object",
+      "properties": {
+        "cpu": { "type": "string" },
+        "gpu": { "type": "string" }
+      }
+    }
+  }
+}

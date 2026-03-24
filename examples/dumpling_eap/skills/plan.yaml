@@ -1,0 +1,16 @@
+name: dumpling.plan
+
+inputs:
+  instruction: string
+
+outputs:
+  task_graph: structured_plan
+
+preconditions:
+  - world_model.contains("dough")
+
+postconditions:
+  - task_graph.valid == true
+
+timeout_ms: 2000
+retry: 1

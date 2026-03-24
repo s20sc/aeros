@@ -1,0 +1,25 @@
+{
+  "type": "object",
+  "required": ["name", "inputs", "outputs"],
+  "properties": {
+    "name": { "type": "string" },
+    "inputs": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "outputs": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "preconditions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "postconditions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "timeout_ms": { "type": "integer" },
+    "retry": { "type": "integer" }
+  }
+}

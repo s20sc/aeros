@@ -1,0 +1,25 @@
+{
+  "type": "object",
+  "required": ["eap_id", "permissions"],
+  "properties": {
+    "eap_id": { "type": "string" },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "scope"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["sensor", "actuator", "data", "network"]
+          },
+          "scope": { "type": "string" },
+          "level": {
+            "type": "string",
+            "enum": ["read", "write", "execute"]
+          }
+        }
+      }
+    }
+  }
+}
