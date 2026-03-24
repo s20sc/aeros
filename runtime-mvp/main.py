@@ -9,6 +9,7 @@ from eap.registry import list_skills, list_eaps, activate_eap, deactivate_eap, u
 from runtime.policy import block_skill, unblock_skill
 from runtime.audit import get_log
 from runtime.trace import print_trace, export_trace_json, save_trace, generate_mermaid, visualize, set_live_path
+from runtime.world.context import world
 
 
 STATE_ICONS = {
@@ -36,6 +37,7 @@ EAPOS Commands:
   trace save             Save trace to JSON file
   trace mermaid          Generate Mermaid flowchart
   trace viz              Compact one-line execution graph
+  world                  Show current world state
   help                   Show this message
   exit                   Quit
 """)
@@ -163,6 +165,11 @@ def main():
                 print(f"\n{m}\n")
         elif line == "trace viz":
             visualize()
+        elif line == "world":
+            print(f"\n=== WORLD STATE ===")
+            for k, v in world.snapshot().items():
+                print(f"  {k}: {v}")
+            print()
         elif line.startswith("block "):
             skill = line[6:].strip()
             block_skill(skill)

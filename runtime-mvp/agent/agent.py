@@ -2,6 +2,7 @@ from agent.planner import plan, DIRECT_CHAINS
 from eap.registry import get_skill
 from runtime.runtime import execute_with_policy
 from runtime.trace import start_trace, add_step, finish_trace
+from runtime.world.context import world
 
 
 class Agent:
@@ -83,11 +84,11 @@ class Agent:
 
             # Step succeeded
             if result.get("status") == "success":
-                add_step(step_id, skill_name, "success", attempt=attempt)
+                add_step(step_id, skill_name, "success", attempt=attempt, world_state=world.snapshot())
                 continue
 
             # Step failed after all retries
-            add_step(step_id, skill_name, "failed", reason=result.get("reason"), attempt=attempt)
+            add_step(step_id, skill_name, "failed", reason=result.get("reason"), attempt=attempt, world_state=world.snapshot())
             reason = result.get("reason", "unknown")
             print(f"[Agent]    Step {i} failed after {attempt} attempt(s): {reason}")
 

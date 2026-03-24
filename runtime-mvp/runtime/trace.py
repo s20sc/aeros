@@ -28,11 +28,11 @@ def start_trace(task_name):
     _write_live()
 
 
-def add_step(step_id, skill_name, status, reason=None, attempt=1):
+def add_step(step_id, skill_name, status, reason=None, attempt=1, world_state=None):
     if _current_trace is None:
         return
     now = datetime.datetime.now()
-    _current_trace["steps"].append({
+    entry = {
         "id": step_id,
         "skill": skill_name,
         "status": status,
@@ -40,7 +40,10 @@ def add_step(step_id, skill_name, status, reason=None, attempt=1):
         "attempt": attempt,
         "time": now.isoformat(timespec="seconds"),
         "time_ms": now.timestamp() * 1000,
-    })
+    }
+    if world_state:
+        entry["world_state"] = world_state
+    _current_trace["steps"].append(entry)
     _write_live()
 
 
