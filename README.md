@@ -6,6 +6,10 @@ A capability-packaged operating architecture for embodied intelligent systems.
 
 > **One Robot = One Persistent Agent. Capabilities = Installable Packages.**
 
+### [Watch the Demo](https://youtu.be/5KdKa5meWgw)
+
+[![EAPOS Demo](https://img.youtube.com/vi/5KdKa5meWgw/maxresdefault.jpg)](https://youtu.be/5KdKa5meWgw)
+
 ---
 
 ## Architecture
