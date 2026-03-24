@@ -1,9 +1,15 @@
-import time
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+
+from runtime.robot.context import robot
 
 
 def run():
     print("[Skill]    Computing grasp pose...")
-    time.sleep(0.2)
-    print("[Skill]    Moving arm to target...")
-    time.sleep(0.3)
-    print("[Skill]    Gripper closed — object secured")
+
+    robot.move_arm("target_object")
+    robot.grasp()
+    print("[Skill]    Object secured.")
+
+    return {"status": "success"}
