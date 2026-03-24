@@ -20,9 +20,12 @@ def load_eap(path):
             permissions = yaml.safe_load(f) or {}
 
     allowed = permissions.get("allowed_skills", [])
-    actuators = permissions.get("actuators", [])
-    risk = permissions.get("risk_level", "unknown")
-    print(f"[EAP]      Permissions: allowed_skills={allowed}, actuators={actuators}, risk_level={risk}")
+    skill_perms = permissions.get("skill_permissions", {})
+    print(f"[EAP]      Allowed skills: {allowed}")
+    for sk, sp in skill_perms.items():
+        acts = sp.get("actuators", [])
+        risk = sp.get("risk_level", "low")
+        print(f"[EAP]        {sk}: actuators={acts}, risk={risk}")
 
     # Register EAP with permissions
     register_eap(eap_id, config, permissions)

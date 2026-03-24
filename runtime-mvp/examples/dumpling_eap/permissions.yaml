@@ -2,8 +2,13 @@ allowed_skills:
   - dumpling.plan
   - dumpling.exec
 
-actuators:
-  - gripper
-  - arm
+skill_permissions:
+  dumpling.plan:
+    actuators: []
+    risk_level: low
 
-risk_level: low
+  dumpling.exec:
+    actuators:
+      - arm
+      - gripper
+    risk_level: low

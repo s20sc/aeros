@@ -1,5 +1,8 @@
-allowed_skills: []
+allowed_skills:
+  - unsafe.cut
 
-actuators: []
-
-risk_level: high
+skill_permissions:
+  unsafe.cut:
+    actuators:
+      - knife
+    risk_level: high

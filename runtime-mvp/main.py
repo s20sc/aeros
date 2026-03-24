@@ -7,6 +7,7 @@ from agent.agent import Agent
 from eap.loader import load_eap
 from eap.registry import list_skills, list_eaps
 from runtime.policy import block_skill, unblock_skill
+from runtime.audit import get_log
 
 
 def print_help():
@@ -17,6 +18,7 @@ EAPOS Commands:
   list                 List installed EAPs and skills
   block <skill>        Block a skill (policy deny)
   unblock <skill>      Unblock a skill
+  audit                Show policy audit log
   help                 Show this message
   exit                 Quit
 """)
@@ -33,7 +35,7 @@ def main():
         if os.path.isdir(eap_path) and os.path.exists(os.path.join(eap_path, "eap.yaml")):
             load_eap(eap_path)
 
-    print("\nEAPOS Runtime v0.2")
+    print("\nEAPOS Runtime v0.4")
     print('Type "help" for commands\n')
 
     while True:
@@ -71,6 +73,16 @@ def main():
                     load_eap(full)
                 else:
                     print(f"[Error] Path not found: {path}")
+        elif line == "audit":
+            log = get_log()
+            if log:
+                print("\nAudit Log:")
+                for entry in log:
+                    reason_str = f" reason={entry['reason']}" if entry['reason'] else ""
+                    print(f"  [{entry['time']}] skill={entry['skill']} eap={entry['eap']} decision={entry['decision']}{reason_str}")
+                print()
+            else:
+                print("No audit entries yet.\n")
         elif line.startswith("block "):
             skill = line[6:].strip()
             block_skill(skill)

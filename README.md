@@ -100,19 +100,25 @@ python main.py
 [Agent]    Task complete.
 ```
 
-### Demo 3: Policy denial — EAP declares no allowed skills
+### Demo 3: Policy denial — risk level blocked by system policy
 
-The `unsafe_eap` is installed but its `permissions.yaml` declares `allowed_skills: []`.
-The skill exists, the code is loaded — but **the runtime refuses to execute it**.
+The `unsafe_eap` declares `unsafe.cut` as allowed, but with `risk_level: high`.
+The system policy blocks all high-risk skills. The skill is installed — **but the runtime refuses**.
 
 ```
 >>> cut with knife
 [Agent]    Received: "cut with knife"
-[Agent]    Planning task...
 [Agent]    Dispatching skill: unsafe.cut
 [Runtime]  Permission check: unsafe.cut (from com.eapos.unsafe)
-[Runtime]  DENIED: unsafe.cut — skill 'unsafe.cut' not in allowed_skills of 'com.eapos.unsafe'
+[Runtime]  DENIED: unsafe.cut — blocked_risk_level:high
+[Audit]    skill=unsafe.cut eap=com.eapos.unsafe decision=deny reason=blocked_risk_level:high
 [Agent]    Task blocked by policy.
+```
+
+If the risk block is lifted, the skill is **still denied** because `knife` is not in the system's allowed actuator list:
+
+```
+[Runtime]  DENIED: unsafe.cut — actuator_not_allowed:knife
 ```
 
 ### Demo 4: Operator override — block a previously allowed skill
@@ -124,17 +130,24 @@ Even if an EAP declares a skill as allowed, an operator can block it at runtime.
 [Runtime]  Blocked: dumpling.exec
 
 >>> make a dumpling
-[Agent]    Received: "make a dumpling"
-[Agent]    Planning task...
-[Agent]    Dispatching skill: dumpling.plan
-[Runtime]  Permission check: dumpling.plan (from com.eapos.dumpling)
-[Runtime]  Permission — OK
-[Runtime]  Executing: dumpling.plan
-[Skill]    dumpling.plan — completed (0.3s)
 [Agent]    Dispatching skill: dumpling.exec
 [Runtime]  Permission check: dumpling.exec (from com.eapos.dumpling)
 [Runtime]  DENIED: dumpling.exec — skill explicitly blocked by operator
+[Audit]    skill=dumpling.exec eap=com.eapos.dumpling decision=deny reason=skill explicitly blocked by operator
 [Agent]    Task blocked by policy.
+```
+
+### Demo 5: Audit log
+
+Every allow/deny decision is recorded with timestamp, skill, EAP, and reason.
+
+```
+>>> audit
+Audit Log:
+  [2026-03-24T14:35:16] skill=dumpling.plan eap=com.eapos.dumpling decision=allow
+  [2026-03-24T14:35:16] skill=dumpling.exec eap=com.eapos.dumpling decision=allow
+  [2026-03-24T14:35:17] skill=pick_place.detect eap=com.eapos.pick_place decision=allow
+  [2026-03-24T14:35:18] skill=unsafe.cut eap=com.eapos.unsafe decision=deny reason=blocked_risk_level:high
 ```
 
 ---
