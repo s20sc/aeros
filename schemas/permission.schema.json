@@ -1,24 +1,33 @@
 {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EAP Permission Profile",
+  "description": "Declares allowed skills and per-skill resource/safety constraints for an EAP.",
   "type": "object",
-  "required": ["eap_id", "permissions"],
+  "required": ["allowed_skills"],
   "properties": {
-    "eap_id": { "type": "string" },
-    "permissions": {
+    "allowed_skills": {
       "type": "array",
-      "items": {
+      "description": "List of skill identifiers this EAP is permitted to execute.",
+      "items": { "type": "string" }
+    },
+    "skill_permissions": {
+      "type": "object",
+      "description": "Per-skill permission declarations specifying actuator access and risk level.",
+      "additionalProperties": {
         "type": "object",
-        "required": ["type", "scope"],
         "properties": {
-          "type": {
-            "type": "string",
-            "enum": ["sensor", "actuator", "data", "network"]
+          "actuators": {
+            "type": "array",
+            "description": "Hardware resources this skill requires (e.g., arm, gripper, camera).",
+            "items": { "type": "string" }
           },
-          "scope": { "type": "string" },
-          "level": {
+          "risk_level": {
             "type": "string",
-            "enum": ["read", "write", "execute"]
+            "description": "Declared risk level of this skill.",
+            "enum": ["low", "medium", "high", "critical"]
           }
-        }
+        },
+        "required": ["actuators", "risk_level"]
       }
     }
   }

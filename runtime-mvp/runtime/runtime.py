@@ -23,8 +23,14 @@ def execute_with_policy(skill_name, skill_entry):
     start = time.time()
 
     result = None
-    if hasattr(skill, "run"):
-        result = skill.run()
+    try:
+        if hasattr(skill, "run"):
+            result = skill.run()
+    except Exception as e:
+        elapsed = time.time() - start
+        print(f"[Skill]    {skill_name} — CRASHED ({elapsed:.1f}s): {e}")
+        record(skill_name, eap_id, "skill_crash", str(e))
+        return {"status": "failure", "reason": f"skill_exception: {str(e)}"}
 
     elapsed = time.time() - start
 
