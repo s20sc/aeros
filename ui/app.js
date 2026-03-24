@@ -1,6 +1,8 @@
 const fileInput = document.getElementById("fileInput");
 const fileName = document.getElementById("fileName");
 const liveBtn = document.getElementById("liveBtn");
+const replayBtn = document.getElementById("replayBtn");
+const stopBtn = document.getElementById("stopBtn");
 const taskCard = document.getElementById("taskCard");
 const taskName = document.getElementById("taskName");
 const taskResult = document.getElementById("taskResult");
@@ -17,6 +19,8 @@ mermaid.initialize({ startOnLoad: false, theme: "dark" });
 let lastTraceHash = null;
 let liveInterval = null;
 let mermaidCounter = 0;
+let currentTrace = null;
+let replayTimer = null;
 
 // File input
 fileInput.addEventListener("change", async (event) => {
@@ -25,6 +29,7 @@ fileInput.addEventListener("change", async (event) => {
   fileName.textContent = file.name;
   const text = await file.text();
   const trace = JSON.parse(text);
+  currentTrace = trace;
   renderTrace(trace);
 });
 
@@ -37,6 +42,7 @@ liveBtn.addEventListener("click", () => {
     liveBtn.classList.remove("active");
     fileName.textContent = "";
   } else {
+    stopReplay();
     liveBtn.textContent = "Live Mode: ON";
     liveBtn.classList.add("active");
     fileName.textContent = "Polling latest_trace.json...";
@@ -44,6 +50,10 @@ liveBtn.addEventListener("click", () => {
     pollTrace();
   }
 });
+
+// Replay
+replayBtn.addEventListener("click", startReplay);
+stopBtn.addEventListener("click", stopReplay);
 
 async function pollTrace() {
   try {
@@ -53,7 +63,8 @@ async function pollTrace() {
     const hash = JSON.stringify(trace);
     if (hash !== lastTraceHash) {
       lastTraceHash = hash;
-      fileName.textContent = "Live — updated " + new Date().toLocaleTimeString();
+      currentTrace = trace;
+      fileName.textContent = "Live \u2014 updated " + new Date().toLocaleTimeString();
       renderTrace(trace);
     }
   } catch (e) {
@@ -61,7 +72,66 @@ async function pollTrace() {
   }
 }
 
-function renderTrace(trace) {
+function startReplay() {
+  if (!currentTrace || !currentTrace.steps || currentTrace.steps.length === 0) return;
+
+  stopReplay();
+
+  // Pause live mode during replay
+  if (liveInterval) {
+    clearInterval(liveInterval);
+    liveInterval = null;
+    liveBtn.textContent = "Live Mode: OFF";
+    liveBtn.classList.remove("active");
+  }
+
+  replayBtn.style.display = "none";
+  stopBtn.style.display = "inline-block";
+  fileName.textContent = "Replaying...";
+
+  const steps = currentTrace.steps;
+  let idx = 0;
+
+  // Show empty state first
+  renderTrace({ ...currentTrace, steps: [], result: "running" });
+
+  replayTimer = setInterval(() => {
+    idx++;
+
+    if (idx > steps.length) {
+      stopReplay();
+      renderTrace(currentTrace);
+      fileName.textContent = "Replay complete";
+      return;
+    }
+
+    const partialSteps = steps.slice(0, idx);
+    const lastStep = partialSteps[partialSteps.length - 1];
+    const isComplete = idx === steps.length;
+    const result = isComplete ? currentTrace.result : "running";
+
+    renderTrace({
+      ...currentTrace,
+      steps: partialSteps,
+      result,
+      finished_at: isComplete ? currentTrace.finished_at : "...",
+    }, idx - 1);
+
+  }, 400);
+}
+
+function stopReplay() {
+  if (replayTimer) {
+    clearInterval(replayTimer);
+    replayTimer = null;
+  }
+  replayBtn.style.display = "inline-block";
+  stopBtn.style.display = "none";
+}
+
+function renderTrace(trace, highlightIdx) {
+  if (!replayTimer) currentTrace = trace;
+
   taskCard.style.display = "block";
   taskName.textContent = trace.task || "unknown";
 
@@ -77,7 +147,7 @@ function renderTrace(trace) {
   renderFlow(grouped);
   renderMermaid(grouped);
   renderTimeline(trace.steps || []);
-  renderSteps(trace.steps || []);
+  renderSteps(trace.steps || [], highlightIdx);
 }
 
 function buildGrouped(steps) {
@@ -198,7 +268,6 @@ function renderTimeline(steps) {
   timeline.innerHTML = "";
   timelineStats.innerHTML = "";
 
-  // Group by step_id, compute duration from first running to last entry
   const grouped = new Map();
   const order = [];
 
@@ -225,14 +294,13 @@ function renderTimeline(steps) {
     if (first.time_ms && last.time_ms) {
       duration = Math.max(last.time_ms - first.time_ms, 50);
     } else {
-      duration = 500; // fallback
+      duration = 500;
     }
 
     items.push({ skill: g.skill, status: g.finalStatus, duration, isRecovery: g.isRecovery });
     totalDuration += duration;
   }
 
-  // Render bars
   for (const item of items) {
     const pct = Math.max((item.duration / totalDuration) * 100, 5);
     const bar = document.createElement("div");
@@ -245,12 +313,11 @@ function renderTimeline(steps) {
 
     const durText = (item.duration / 1000).toFixed(2);
     bar.textContent = `${item.skill} (${durText}s)`;
-    bar.title = `${item.skill}: ${durText}s — ${item.status}`;
+    bar.title = `${item.skill}: ${durText}s \u2014 ${item.status}`;
 
     timeline.appendChild(bar);
   }
 
-  // Stats
   const totalSec = (totalDuration / 1000).toFixed(2);
   const statsHtml = items.map(item => {
     const durText = (item.duration / 1000).toFixed(2);
@@ -261,13 +328,18 @@ function renderTimeline(steps) {
   timelineStats.innerHTML = `<span class="timeline-stat">Total: ${totalSec}s</span>` + statsHtml;
 }
 
-function renderSteps(steps) {
+function renderSteps(steps, highlightIdx) {
   stepsCard.style.display = "block";
   stepsTableBody.innerHTML = "";
 
-  for (const step of steps) {
+  for (let i = 0; i < steps.length; i++) {
+    const step = steps[i];
     const tr = document.createElement("tr");
     tr.className = "row-" + (step.status || "");
+
+    if (highlightIdx !== undefined && i === highlightIdx) {
+      tr.classList.add("current-step");
+    }
 
     tr.innerHTML = `
       <td>${step.id || ""}</td>
@@ -279,5 +351,13 @@ function renderSteps(steps) {
     `;
 
     stepsTableBody.appendChild(tr);
+  }
+
+  // Auto-scroll to current step
+  if (highlightIdx !== undefined) {
+    const rows = stepsTableBody.querySelectorAll("tr");
+    if (rows[highlightIdx]) {
+      rows[highlightIdx].scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
   }
 }
