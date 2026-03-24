@@ -137,17 +137,61 @@ Even if an EAP declares a skill as allowed, an operator can block it at runtime.
 [Agent]    Task blocked by policy.
 ```
 
-### Demo 5: Audit log
+### Demo 5: EAP lifecycle — deactivate / activate / uninstall
+
+```
+>>> list
+[*] EAP: com.eapos.dumpling    state: activated
+[*] EAP: com.eapos.pick_place  state: activated
+[*] EAP: com.eapos.unsafe      state: activated
+
+>>> deactivate com.eapos.dumpling
+[EAP]      Deactivated: com.eapos.dumpling
+
+>>> make a dumpling
+[Agent]    Skill not found: dumpling.plan
+[Agent]    Task blocked — skill not installed.
+
+>>> activate com.eapos.dumpling
+[EAP]      Activated: com.eapos.dumpling
+
+>>> make a dumpling
+[Agent]    Task complete.
+
+>>> uninstall com.eapos.unsafe
+[EAP]      Uninstalled: com.eapos.unsafe
+
+>>> list
+[*] EAP: com.eapos.dumpling    state: activated
+[*] EAP: com.eapos.pick_place  state: activated
+[x] EAP: com.eapos.unsafe      state: uninstalled
+```
+
+### Demo 6: Detailed package inspection
+
+```
+>>> list
+[*] EAP: com.eapos.dumpling
+    version: 1.0.0
+    state:   activated
+    skills:
+      - dumpling.plan (active)
+      - dumpling.exec (active)
+    permissions:
+      dumpling.plan: risk=low, actuators=[]
+      dumpling.exec: risk=low, actuators=['arm', 'gripper']
+```
+
+### Demo 7: Audit log
 
 Every allow/deny decision is recorded with timestamp, skill, EAP, and reason.
 
 ```
 >>> audit
 Audit Log:
-  [2026-03-24T14:35:16] skill=dumpling.plan eap=com.eapos.dumpling decision=allow
-  [2026-03-24T14:35:16] skill=dumpling.exec eap=com.eapos.dumpling decision=allow
-  [2026-03-24T14:35:17] skill=pick_place.detect eap=com.eapos.pick_place decision=allow
-  [2026-03-24T14:35:18] skill=unsafe.cut eap=com.eapos.unsafe decision=deny reason=blocked_risk_level:high
+  1. [2026-03-24T14:39:40] skill=dumpling.plan eap=com.eapos.dumpling decision=allow
+  2. [2026-03-24T14:39:41] skill=dumpling.exec eap=com.eapos.dumpling decision=allow
+  3. [2026-03-24T14:39:42] skill=unsafe.cut eap=com.eapos.unsafe decision=deny reason=blocked_risk_level:high
 ```
 
 ---
