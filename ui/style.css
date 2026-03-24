@@ -87,6 +87,28 @@ input[type="file"] {
   50% { box-shadow: 0 0 0 6px rgba(31, 111, 235, 0); }
 }
 
+.replay-btn {
+  padding: 10px 20px;
+  background: #6e40c9;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.replay-btn:hover { background: #8957e5; }
+.replay-btn.stop { background: #da3633; }
+.replay-btn.stop:hover { background: #f85149; }
+
+tr.current-step {
+  outline: 2px solid #388bfd;
+  outline-offset: -2px;
+  background: #1a2a4a55 !important;
+}
+
 .file-name {
   color: #8b949e;
   font-size: 13px;
