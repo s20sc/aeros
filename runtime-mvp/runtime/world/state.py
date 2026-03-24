@@ -20,6 +20,9 @@ class WorldState:
     def snapshot(self):
         return {k: v for k, v in self.__dict__.items() if not k.startswith("_")}
 
+    def reset(self):
+        self.__init__()
+
     def __repr__(self):
         items = ", ".join(f"{k}={v}" for k, v in self.snapshot().items())
         return f"WorldState({items})"

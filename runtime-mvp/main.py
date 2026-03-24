@@ -38,6 +38,7 @@ EAPOS Commands:
   trace mermaid          Generate Mermaid flowchart
   trace viz              Compact one-line execution graph
   world                  Show current world state
+  reset                  Reset world state for fresh demo
   help                   Show this message
   exit                   Quit
 """)
@@ -170,6 +171,11 @@ def main():
             for k, v in world.snapshot().items():
                 print(f"  {k}: {v}")
             print()
+        elif line == "reset":
+            world.reset()
+            from runtime.robot.context import robot as _robot
+            _robot.__init__()
+            print("[System]   World state and robot reset.\n")
         elif line.startswith("block "):
             skill = line[6:].strip()
             block_skill(skill)

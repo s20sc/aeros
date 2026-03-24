@@ -41,9 +41,12 @@ A capability-packaged operating architecture for embodied intelligent systems.
 ## Quick Start
 
 ```bash
+git clone https://github.com/s20sc/eapos-spec.git
+cd eapos-spec
+pip install -r requirements.txt
 cd runtime-mvp
-pip install pyyaml
-python main.py
+python main.py          # Interactive mode
+bash demo.sh            # Or run the automated demo
 ```
 
 ```
