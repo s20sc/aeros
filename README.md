@@ -47,33 +47,42 @@ pip install pyyaml
 python main.py
 ```
 
-### Demo 1: Task graph execution (EAP: dumpling)
+### Demo 1: Task graph with fallback (EAP: dumpling)
 
-The plan skill generates a structured task graph. The agent then executes each step sequentially, with per-step permission checks.
+The plan skill generates a structured task graph. Steps can declare `on_failure` fallbacks. The agent executes steps sequentially with per-step policy checks, skill failure detection, and automatic fallback.
+
+**Success path:**
 
 ```
 >>> make dumplings
 [Agent]    Dispatching plan skill: dumpling.plan
-[Runtime]  Permission check: dumpling.plan (from com.eapos.dumpling) — OK
-[Skill]    Generating task graph...
 [Skill]    Task graph:
 [Skill]      -> dumpling.prepare
-[Skill]      -> dumpling.wrap (after dumpling.prepare)
-[Skill]      -> dumpling.boil (after dumpling.wrap)
+[Skill]      -> dumpling.wrap [fallback: dumpling.recover]
+[Skill]      -> dumpling.boil
 [Agent]    Task graph received: 3 steps
-[Agent]    Step 1/3: dumpling.prepare
-[Runtime]  Permission check: dumpling.prepare — OK
-[Skill]    Kneading dough...
-[Skill]    Dough and filling ready.
-[Agent]    Step 2/3: dumpling.wrap
-[Runtime]  Permission check: dumpling.wrap — OK
-[Skill]    Folding and sealing...
-[Skill]    Dumpling wrapped.
-[Agent]    Step 3/3: dumpling.boil
-[Runtime]  Permission check: dumpling.boil — OK
-[Skill]    Boiling for 8 minutes...
-[Skill]    Dumpling cooked and ready to serve.
+[Agent]    Step 1/3: dumpling.prepare — OK
+[Agent]    Step 2/3: dumpling.wrap — OK
+[Agent]    Step 3/3: dumpling.boil — OK
 [Agent]    All steps complete. Task done.
+```
+
+**Failure path — skill fails, fallback triggered:**
+
+```
+>>> make dumplings
+[Agent]    Step 1/3: dumpling.prepare — OK
+[Agent]    Step 2/3: dumpling.wrap
+[Skill]    Placing filling on dough...
+[Skill]    ERROR: filling leaked during fold
+[Skill]    dumpling.wrap — FAILED: wrap_integrity_check_failed
+[Agent]    Step 2 failed: wrap_integrity_check_failed
+[Agent]    Triggering fallback: dumpling.recover
+[Skill]    Initiating recovery procedure...
+[Skill]    Discarding failed dumpling
+[Skill]    Resetting workspace
+[Skill]    Recovery complete — ready for retry.
+[Agent]    Fallback succeeded — task graph halted (needs replanning).
 ```
 
 ### Demo 2: Pick up a cup (EAP: pick_place)

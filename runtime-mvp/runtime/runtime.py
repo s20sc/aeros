@@ -14,7 +14,7 @@ def execute_with_policy(skill_name, skill_entry):
     if not allowed:
         print(f"[Runtime]  DENIED: {skill_name} — {reason}")
         record(skill_name, eap_id, "deny", reason)
-        return None
+        return {"status": "denied", "reason": reason}
 
     print("[Runtime]  Permission — OK")
     record(skill_name, eap_id, "allow")
@@ -27,5 +27,17 @@ def execute_with_policy(skill_name, skill_entry):
         result = skill.run()
 
     elapsed = time.time() - start
-    print(f"[Skill]    {skill_name} — completed ({elapsed:.1f}s)")
-    return result if result is not None else True
+
+    # Normalize result
+    if result is None:
+        result = {"status": "success"}
+    elif not isinstance(result, dict):
+        result = {"status": "success"}
+
+    if result.get("status") == "success":
+        print(f"[Skill]    {skill_name} — completed ({elapsed:.1f}s)")
+    else:
+        print(f"[Skill]    {skill_name} — FAILED ({elapsed:.1f}s): {result.get('reason', 'unknown')}")
+        record(skill_name, eap_id, "skill_failure", result.get("reason"))
+
+    return result

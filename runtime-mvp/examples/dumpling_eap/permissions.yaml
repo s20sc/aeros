@@ -3,6 +3,7 @@ allowed_skills:
   - dumpling.prepare
   - dumpling.wrap
   - dumpling.boil
+  - dumpling.recover
 
 skill_permissions:
   dumpling.plan:
@@ -24,4 +25,10 @@ skill_permissions:
   dumpling.boil:
     actuators:
       - arm
+    risk_level: low
+
+  dumpling.recover:
+    actuators:
+      - arm
+      - gripper
     risk_level: low
