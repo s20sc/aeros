@@ -144,10 +144,59 @@ function renderTrace(trace, highlightIdx) {
   taskTime.textContent = `${started}  \u2192  ${finished}`;
 
   const grouped = buildGrouped(trace.steps || []);
+  renderWorldState(trace);
   renderFlow(grouped);
   renderMermaid(grouped);
   renderTimeline(trace.steps || []);
   renderSteps(trace.steps || [], highlightIdx);
+}
+
+function renderWorldState(trace) {
+  const worldCard = document.getElementById("worldCard");
+  const worldView = document.getElementById("worldView");
+
+  // Get world state: from top-level trace or from last step with world_state
+  let ws = trace.world_state;
+  if (!ws) {
+    const steps = trace.steps || [];
+    for (let i = steps.length - 1; i >= 0; i--) {
+      if (steps[i].world_state) {
+        ws = steps[i].world_state;
+        break;
+      }
+    }
+  }
+
+  if (!ws) {
+    worldCard.style.display = "none";
+    return;
+  }
+
+  worldCard.style.display = "block";
+  worldView.innerHTML = "";
+
+  for (const [key, val] of Object.entries(ws)) {
+    const item = document.createElement("div");
+    item.className = "world-item";
+
+    const keyEl = document.createElement("span");
+    keyEl.className = "world-key";
+    keyEl.textContent = key;
+
+    const valEl = document.createElement("span");
+    let valClass = "world-val";
+    if (val === true) valClass += " val-true";
+    else if (val === false) valClass += " val-false";
+    else if (val === null || val === undefined) valClass += " val-none";
+    else valClass += " val-string";
+
+    valEl.className = valClass;
+    valEl.textContent = val === null ? "null" : String(val);
+
+    item.appendChild(keyEl);
+    item.appendChild(valEl);
+    worldView.appendChild(item);
+  }
 }
 
 function buildGrouped(steps) {

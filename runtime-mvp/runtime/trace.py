@@ -13,6 +13,12 @@ def set_live_path(path):
 
 def _write_live():
     if _live_path and _current_trace:
+        # Include latest world state snapshot
+        try:
+            from runtime.world.context import world
+            _current_trace["world_state"] = world.snapshot()
+        except Exception:
+            pass
         with open(_live_path, "w") as f:
             json.dump(_current_trace, f, indent=2)
 
