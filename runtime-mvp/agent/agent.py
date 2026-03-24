@@ -4,6 +4,8 @@ from runtime.runtime import execute_with_policy
 from runtime.trace import start_trace, add_step, finish_trace
 from runtime.world.context import world
 
+MAX_REPLAN_CYCLES = 10
+
 
 class Agent:
 
@@ -25,30 +27,61 @@ class Agent:
             self._execute_graph(steps)
             return
 
-        # Execute plan skill
-        print(f"[Agent]    Dispatching plan skill: {root_skill_name}")
+        # Plan-based: re-planning loop
+        self._replan_loop(root_skill_name)
 
-        skill_entry = get_skill(root_skill_name)
-        if not skill_entry:
-            print(f"[Agent]    Skill not found: {root_skill_name}")
-            return
+    def _replan_loop(self, plan_skill_name):
+        """Execute with re-planning: plan -> execute one step -> re-plan."""
+        start_trace("unknown")
+        step_counter = 0
 
-        result = execute_with_policy(root_skill_name, skill_entry)
+        for cycle in range(MAX_REPLAN_CYCLES):
+            # Run the plan skill
+            print(f"\n[Agent]    === Re-plan cycle {cycle + 1} ===")
 
-        if result.get("status") != "success":
-            print(f"[Agent]    Plan failed: {result.get('reason')}")
-            print("[Agent]    Task aborted.")
-            return
+            skill_entry = get_skill(plan_skill_name)
+            if not skill_entry:
+                print(f"[Agent]    Plan skill not found: {plan_skill_name}")
+                finish_trace("aborted")
+                return
 
-        # Execute task graph
-        task_graph = result.get("task_graph")
-        if task_graph and "steps" in task_graph:
-            task_name = task_graph.get("task", "unknown")
-            start_trace(task_name)
-            print(f"[Agent]    Task graph received: {len(task_graph['steps'])} steps")
-            self._execute_graph(task_graph["steps"])
-        else:
-            print("[Agent]    Task complete.")
+            result = execute_with_policy(plan_skill_name, skill_entry)
+
+            if result.get("status") != "success":
+                print(f"[Agent]    Plan failed: {result.get('reason')}")
+                finish_trace("aborted")
+                return
+
+            task_graph = result.get("task_graph")
+            if not task_graph or not task_graph.get("steps"):
+                print("[Agent]    Planner returned no steps — task complete.")
+                finish_trace("completed")
+                return
+
+            # Update trace task name from first plan
+            from runtime.trace import _current_trace
+            if _current_trace and _current_trace["task"] == "unknown":
+                _current_trace["task"] = task_graph.get("task", "unknown")
+
+            steps = task_graph["steps"]
+            next_step = steps[0]
+            remaining = len(steps)
+            print(f"[Agent]    Plan has {remaining} step(s), executing next: {next_step['skill']}")
+
+            # Execute just the first step
+            step_counter += 1
+            success = self._execute_one_step(next_step, step_counter)
+
+            if not success:
+                # Step failed and no recovery succeeded — abort
+                print("[Agent]    Step failed — task aborted.")
+                finish_trace("aborted")
+                return
+
+            # After executing, loop back to re-plan with updated world state
+
+        print("[Agent]    Max re-plan cycles reached — task aborted.")
+        finish_trace("aborted")
 
     def _execute_step(self, skill_name):
         skill_entry = get_skill(skill_name)
@@ -57,63 +90,73 @@ class Agent:
             return {"status": "failure", "reason": "skill_not_found"}
         return execute_with_policy(skill_name, skill_entry)
 
+    def _execute_one_step(self, step, step_num):
+        """Execute a single step with retry + fallback. Returns True if step succeeded."""
+        skill_name = step["skill"] if isinstance(step, dict) else step
+        retries = step.get("retry", 0) if isinstance(step, dict) else 0
+        fallback = step.get("on_failure") if isinstance(step, dict) else None
+        continue_on_recovery = step.get("continue_on_recovery", False) if isinstance(step, dict) else False
+        step_id = f"step_{step_num}"
+
+        print(f"[Agent]    Executing: {skill_name}")
+
+        # Try with retries
+        add_step(step_id, skill_name, "running", attempt=1)
+        result = self._execute_step(skill_name)
+        attempt = 1
+
+        while result.get("status") != "success" and attempt <= retries:
+            add_step(step_id, skill_name, "failed", reason=result.get("reason"), attempt=attempt)
+            attempt += 1
+            reason = result.get("reason", "unknown")
+            print(f"[Agent]    Failed: {reason} — retrying ({attempt}/{retries + 1})")
+            add_step(step_id, skill_name, "running", attempt=attempt)
+            result = self._execute_step(skill_name)
+
+        if result.get("status") == "success":
+            add_step(step_id, skill_name, "success", attempt=attempt, world_state=world.snapshot())
+            return True
+
+        # Failed after all retries
+        add_step(step_id, skill_name, "failed", reason=result.get("reason"), attempt=attempt, world_state=world.snapshot())
+        reason = result.get("reason", "unknown")
+        print(f"[Agent]    Failed after {attempt} attempt(s): {reason}")
+
+        if fallback:
+            print(f"[Agent]    Triggering fallback: {fallback}")
+            recovery_id = f"{step_id}_recovery"
+            add_step(recovery_id, fallback, "running", attempt=1)
+            fb_result = self._execute_step(fallback)
+
+            if fb_result.get("status") == "success":
+                add_step(recovery_id, fallback, "success", attempt=1, world_state=world.snapshot())
+                print(f"[Agent]    Recovery succeeded — will re-plan.")
+                return True  # Recovery fixed world state, re-plan will adapt
+            else:
+                add_step(recovery_id, fallback, "failed", reason=fb_result.get("reason"), attempt=1)
+                print(f"[Agent]    Recovery failed.")
+                return False
+
+        return False
+
     def _execute_graph(self, steps):
+        """Execute a fixed chain of steps (for direct chains without re-planning)."""
         total = len(steps)
 
         for i, step in enumerate(steps, 1):
             skill_name = step["skill"] if isinstance(step, dict) else step
-            retries = step.get("retry", 0) if isinstance(step, dict) else 0
-            fallback = step.get("on_failure") if isinstance(step, dict) else None
-            continue_on_recovery = step.get("continue_on_recovery", False) if isinstance(step, dict) else False
             step_id = f"step_{i}"
 
             print(f"[Agent]    Step {i}/{total}: {skill_name}")
-
-            # Try with retries
             add_step(step_id, skill_name, "running", attempt=1)
             result = self._execute_step(skill_name)
-            attempt = 1
 
-            while result.get("status") != "success" and attempt <= retries:
-                add_step(step_id, skill_name, "failed", reason=result.get("reason"), attempt=attempt)
-                attempt += 1
-                reason = result.get("reason", "unknown")
-                print(f"[Agent]    Step {i} failed: {reason} — retrying ({attempt}/{retries + 1})")
-                add_step(step_id, skill_name, "running", attempt=attempt)
-                result = self._execute_step(skill_name)
-
-            # Step succeeded
             if result.get("status") == "success":
-                add_step(step_id, skill_name, "success", attempt=attempt, world_state=world.snapshot())
+                add_step(step_id, skill_name, "success", attempt=1, world_state=world.snapshot())
                 continue
 
-            # Step failed after all retries
-            add_step(step_id, skill_name, "failed", reason=result.get("reason"), attempt=attempt, world_state=world.snapshot())
-            reason = result.get("reason", "unknown")
-            print(f"[Agent]    Step {i} failed after {attempt} attempt(s): {reason}")
-
-            if fallback:
-                print(f"[Agent]    Triggering fallback: {fallback}")
-                recovery_id = f"{step_id}_recovery"
-                add_step(recovery_id, fallback, "running", attempt=1)
-                fb_result = self._execute_step(fallback)
-
-                if fb_result.get("status") == "success":
-                    add_step(recovery_id, fallback, "success", attempt=1)
-                    if continue_on_recovery:
-                        print(f"[Agent]    Recovery succeeded — continuing execution.")
-                        continue
-                    else:
-                        print(f"[Agent]    Recovery succeeded — task graph halted (safe stop).")
-                        finish_trace("recovered")
-                        return
-                else:
-                    add_step(recovery_id, fallback, "failed", reason=fb_result.get("reason"), attempt=1)
-                    print(f"[Agent]    Recovery failed — task graph halted.")
-                    finish_trace("aborted")
-                    return
-
-            print(f"[Agent]    No fallback defined — task graph halted.")
+            add_step(step_id, skill_name, "failed", reason=result.get("reason"), attempt=1, world_state=world.snapshot())
+            print(f"[Agent]    Step {i} failed — task graph halted.")
             finish_trace("aborted")
             return
 
