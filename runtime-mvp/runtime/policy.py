@@ -1,24 +1,6 @@
-import os
-import yaml
+from eap.registry import get_eap_permissions
 
-_granted = {}  # eap_id -> list of permission dicts
 _blocked_skills = set()
-
-
-def load_permissions(eap_path, eap_id):
-    perm_file = os.path.join(eap_path, "permissions.yaml")
-    if not os.path.exists(perm_file):
-        _granted[eap_id] = []
-        return
-
-    with open(perm_file) as f:
-        config = yaml.safe_load(f)
-
-    perms = config.get("permissions", [])
-    _granted[eap_id] = perms
-
-    for p in perms:
-        print(f"[Runtime]  Granted: {p['type']}.{p['scope']} ({p.get('level', 'execute')})")
 
 
 def block_skill(name):
@@ -29,25 +11,26 @@ def unblock_skill(name):
     _blocked_skills.discard(name)
 
 
-def check_permission(skill_name):
-    # Explicit block list takes priority
+def check_permission(skill_name, eap_id):
+    # Manual block list takes highest priority
     if skill_name in _blocked_skills:
-        return False, "skill explicitly blocked by policy"
+        return False, "skill explicitly blocked by operator"
 
-    # Check if the skill belongs to any registered EAP
-    skill_domain = skill_name.split(".")[0]
-    domain_recognized = False
+    # Look up EAP's declared permissions
+    permissions = get_eap_permissions(eap_id)
 
-    for eap_id, perms in _granted.items():
-        for p in perms:
-            scope = p.get("scope", "")
-            if skill_domain in scope or scope.startswith(f"{skill_domain}."):
-                domain_recognized = True
-                if p["type"] == "actuator":
-                    return True, None
+    if not permissions:
+        return False, f"EAP '{eap_id}' has no permissions declared"
 
-    # If no EAP recognizes this skill domain, deny it
-    if not domain_recognized and _granted:
-        return False, f"no EAP grants permission for '{skill_domain}'"
+    # Check allowed_skills whitelist
+    allowed_skills = permissions.get("allowed_skills", [])
+
+    if skill_name not in allowed_skills:
+        return False, f"skill '{skill_name}' not in allowed_skills of '{eap_id}'"
+
+    # Check risk level
+    risk = permissions.get("risk_level", "unknown")
+    if risk == "critical":
+        return False, f"EAP '{eap_id}' has risk_level=critical, requires manual approval"
 
     return True, None

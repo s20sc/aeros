@@ -54,7 +54,7 @@ python main.py
 [Agent]    Received: "make a dumpling"
 [Agent]    Planning task...
 [Agent]    Dispatching skill: dumpling.plan
-[Runtime]  Permission check: dumpling.plan
+[Runtime]  Permission check: dumpling.plan (from com.eapos.dumpling)
 [Runtime]  Permission — OK
 [Runtime]  Executing: dumpling.plan
 [Skill]    Analyzing instruction...
@@ -65,7 +65,7 @@ python main.py
 [Skill]      step 4: steam (after step 3)
 [Skill]    dumpling.plan — completed (0.3s)
 [Agent]    Dispatching skill: dumpling.exec
-[Runtime]  Permission check: dumpling.exec
+[Runtime]  Permission check: dumpling.exec (from com.eapos.dumpling)
 [Runtime]  Permission — OK
 [Runtime]  Executing: dumpling.exec
 [Skill]    Picking up dough...
@@ -84,28 +84,56 @@ python main.py
 [Agent]    Received: "pick up the cup"
 [Agent]    Planning task...
 [Agent]    Dispatching skill: pick_place.detect
-[Runtime]  Permission check: pick_place.detect — OK
+[Runtime]  Permission check: pick_place.detect (from com.eapos.pick_place)
+[Runtime]  Permission — OK
 [Skill]    Scanning workspace with RGB-D camera...
 [Skill]    Detected: red_cup at (0.35, 0.12, 0.08)
 [Agent]    Dispatching skill: pick_place.grasp
-[Runtime]  Permission check: pick_place.grasp — OK
+[Runtime]  Permission check: pick_place.grasp (from com.eapos.pick_place)
+[Runtime]  Permission — OK
 [Skill]    Computing grasp pose...
 [Skill]    Gripper closed — object secured
 [Agent]    Dispatching skill: pick_place.place
-[Runtime]  Permission check: pick_place.place — OK
+[Runtime]  Permission check: pick_place.place (from com.eapos.pick_place)
+[Runtime]  Permission — OK
 [Skill]    Gripper open — object placed
 [Agent]    Task complete.
 ```
 
-### Demo 3: Policy denial (unsafe operation)
+### Demo 3: Policy denial — EAP declares no allowed skills
+
+The `unsafe_eap` is installed but its `permissions.yaml` declares `allowed_skills: []`.
+The skill exists, the code is loaded — but **the runtime refuses to execute it**.
 
 ```
 >>> cut with knife
 [Agent]    Received: "cut with knife"
 [Agent]    Planning task...
 [Agent]    Dispatching skill: unsafe.cut
-[Runtime]  Permission check: unsafe.cut
-[Runtime]  DENIED: unsafe.cut — no EAP grants permission for 'unsafe'
+[Runtime]  Permission check: unsafe.cut (from com.eapos.unsafe)
+[Runtime]  DENIED: unsafe.cut — skill 'unsafe.cut' not in allowed_skills of 'com.eapos.unsafe'
+[Agent]    Task blocked by policy.
+```
+
+### Demo 4: Operator override — block a previously allowed skill
+
+Even if an EAP declares a skill as allowed, an operator can block it at runtime.
+
+```
+>>> block dumpling.exec
+[Runtime]  Blocked: dumpling.exec
+
+>>> make a dumpling
+[Agent]    Received: "make a dumpling"
+[Agent]    Planning task...
+[Agent]    Dispatching skill: dumpling.plan
+[Runtime]  Permission check: dumpling.plan (from com.eapos.dumpling)
+[Runtime]  Permission — OK
+[Runtime]  Executing: dumpling.plan
+[Skill]    dumpling.plan — completed (0.3s)
+[Agent]    Dispatching skill: dumpling.exec
+[Runtime]  Permission check: dumpling.exec (from com.eapos.dumpling)
+[Runtime]  DENIED: dumpling.exec — skill explicitly blocked by operator
 [Agent]    Task blocked by policy.
 ```
 
