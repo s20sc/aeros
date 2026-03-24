@@ -3,9 +3,20 @@ allowed_skills:
   - pick_place.grasp
   - pick_place.place
 
-actuators:
-  - gripper
-  - arm
-  - camera
+skill_permissions:
+  pick_place.detect:
+    actuators:
+      - camera
+    risk_level: low
 
-risk_level: low
+  pick_place.grasp:
+    actuators:
+      - arm
+      - gripper
+    risk_level: low
+
+  pick_place.place:
+    actuators:
+      - arm
+      - gripper
+    risk_level: low
