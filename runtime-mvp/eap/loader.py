@@ -6,8 +6,19 @@ from eap.registry import register_eap, activate_eap
 def load_eap(path):
     manifest_path = os.path.join(path, "eap.yaml")
 
-    with open(manifest_path) as f:
-        config = yaml.safe_load(f)
+    try:
+        with open(manifest_path) as f:
+            config = yaml.safe_load(f)
+    except FileNotFoundError:
+        print(f"[EAP]      Error: manifest not found at {manifest_path}")
+        return False
+    except yaml.YAMLError as e:
+        print(f"[EAP]      Error: malformed YAML in {manifest_path}: {e}")
+        return False
+
+    if not config or "id" not in config:
+        print(f"[EAP]      Error: missing 'id' in manifest {manifest_path}")
+        return False
 
     eap_id = config["id"]
     print(f"[EAP]      Installing: {eap_id} v{config['version']}")

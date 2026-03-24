@@ -1,20 +1,61 @@
 {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Embodied Ability Package (EAP) Manifest",
+  "description": "Schema for an EAP manifest following the formal definition E_i = (C_i, S_i, M_i, P_i, D_i) from the EAPOS paper.",
   "type": "object",
   "required": ["id", "version", "skills"],
   "properties": {
-    "id": { "type": "string" },
-    "version": { "type": "string" },
-    "description": { "type": "string" },
+    "id": {
+      "type": "string",
+      "description": "Unique package identifier (reverse-domain notation)."
+    },
+    "version": {
+      "type": "string",
+      "description": "Semantic version string. Part of D_i (metadata)."
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable summary of the EAP. Part of D_i."
+    },
+    "capabilities": {
+      "type": "array",
+      "description": "C_i: High-level capability definitions exposed to the agent.",
+      "items": { "type": "string" }
+    },
     "skills": {
       "type": "array",
+      "description": "S_i: Skill identifiers with typed input-output interfaces.",
       "items": { "type": "string" }
+    },
+    "models": {
+      "type": "object",
+      "description": "M_i: Optional models and tool adapters for perception/reasoning.",
+      "properties": {
+        "perception": { "type": "string" },
+        "reasoning": { "type": "string" }
+      }
     },
     "resources": {
       "type": "object",
+      "description": "Part of D_i: Computational resource requirements.",
       "properties": {
         "cpu": { "type": "string" },
         "gpu": { "type": "string" }
       }
+    },
+    "dependencies": {
+      "type": "array",
+      "description": "Part of D_i: Other EAP IDs this package depends on.",
+      "items": { "type": "string" }
+    },
+    "compatibility": {
+      "type": "object",
+      "description": "Part of D_i: Platform and runtime compatibility info.",
+      "properties": {
+        "runtime_version": { "type": "string" },
+        "platform": { "type": "string" }
+      }
     }
-  }
+  },
+  "additionalProperties": false
 }

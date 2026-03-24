@@ -238,7 +238,43 @@ eapos-spec/
 
 This repository provides the reference implementation for:
 
-> *Toward Single-Agent Robots: A Capability-Packaged Operating Architecture (EAPOS)*
+> *Toward Single-Agent Robots: A Capability-Packaged Operating Architecture (EAPOS) with Policy-Separated Runtime*
+
+The formal EAP definition $E_i = (\mathcal{C}_i, \mathcal{S}_i, \mathcal{M}_i, \mathcal{P}_i, \mathcal{D}_i)$ from the paper maps to:
+
+| Paper Symbol | Implementation |
+|---|---|
+| $\mathcal{C}_i$ (Capabilities) | `capabilities` field in `eap.yaml` |
+| $\mathcal{S}_i$ (Skills) | `skills` field + Python modules in `skills/` |
+| $\mathcal{M}_i$ (Models/Tools) | `models` field in `eap.yaml` |
+| $\mathcal{P}_i$ (Permissions) | `permissions.yaml` per EAP |
+| $\mathcal{D}_i$ (Metadata) | `version`, `dependencies`, `compatibility` in `eap.yaml` |
+
+---
+
+## Known Limitations
+
+This is a **lightweight reference implementation** intended to demonstrate the architectural principles described in the paper. It is not production-ready.
+
+- **Policy enforcement is declaration-based**: the runtime validates declared permissions but does not sandbox skill code at the OS level. A malicious skill could bypass declared constraints.
+- **Single-process, single-thread**: no concurrency or real-time guarantees. Skills execute sequentially.
+- **No wall-clock timeout**: the re-planning loop has a max cycle count (`MAX_REPLAN_CYCLES=10`) but no per-skill time limit.
+- **Mock robot only**: the `Robot` class simulates hardware calls via `time.sleep()`. Integration with ROS 2 / Gazebo is not included in this MVP.
+- **No persistent storage**: world state and agent memory reset on restart.
+
+---
+
+## Citation
+
+If you use this code in your research, please cite:
+
+```bibtex
+@inproceedings{qin2026eapos,
+  title={Toward Single-Agent Robots: A Capability-Packaged Operating Architecture (EAPOS) with Policy-Separated Runtime},
+  author={Qin, Xue and Luan, Simin and Yang, Cong and Li, Zhijun},
+  year={2026}
+}
+```
 
 ---
 
