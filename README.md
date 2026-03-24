@@ -47,34 +47,33 @@ pip install pyyaml
 python main.py
 ```
 
-### Demo 1: Make a dumpling (EAP: dumpling)
+### Demo 1: Task graph execution (EAP: dumpling)
+
+The plan skill generates a structured task graph. The agent then executes each step sequentially, with per-step permission checks.
 
 ```
->>> make a dumpling
-[Agent]    Received: "make a dumpling"
-[Agent]    Planning task...
-[Agent]    Dispatching skill: dumpling.plan
-[Runtime]  Permission check: dumpling.plan (from com.eapos.dumpling)
-[Runtime]  Permission — OK
-[Runtime]  Executing: dumpling.plan
-[Skill]    Analyzing instruction...
-[Skill]    Task graph generated:
-[Skill]      step 1: prepare_dough
-[Skill]      step 2: add_filling (after step 1)
-[Skill]      step 3: wrap (after step 2)
-[Skill]      step 4: steam (after step 3)
-[Skill]    dumpling.plan — completed (0.3s)
-[Agent]    Dispatching skill: dumpling.exec
-[Runtime]  Permission check: dumpling.exec (from com.eapos.dumpling)
-[Runtime]  Permission — OK
-[Runtime]  Executing: dumpling.exec
-[Skill]    Picking up dough...
-[Skill]    Wrapping filling...
-[Skill]    Shaping dumpling...
-[Skill]    Placing on tray...
-[Skill]    Dumpling complete.
-[Skill]    dumpling.exec — completed (0.8s)
-[Agent]    Task complete.
+>>> make dumplings
+[Agent]    Dispatching plan skill: dumpling.plan
+[Runtime]  Permission check: dumpling.plan (from com.eapos.dumpling) — OK
+[Skill]    Generating task graph...
+[Skill]    Task graph:
+[Skill]      -> dumpling.prepare
+[Skill]      -> dumpling.wrap (after dumpling.prepare)
+[Skill]      -> dumpling.boil (after dumpling.wrap)
+[Agent]    Task graph received: 3 steps
+[Agent]    Step 1/3: dumpling.prepare
+[Runtime]  Permission check: dumpling.prepare — OK
+[Skill]    Kneading dough...
+[Skill]    Dough and filling ready.
+[Agent]    Step 2/3: dumpling.wrap
+[Runtime]  Permission check: dumpling.wrap — OK
+[Skill]    Folding and sealing...
+[Skill]    Dumpling wrapped.
+[Agent]    Step 3/3: dumpling.boil
+[Runtime]  Permission check: dumpling.boil — OK
+[Skill]    Boiling for 8 minutes...
+[Skill]    Dumpling cooked and ready to serve.
+[Agent]    All steps complete. Task done.
 ```
 
 ### Demo 2: Pick up a cup (EAP: pick_place)
@@ -121,20 +120,23 @@ If the risk block is lifted, the skill is **still denied** because `knife` is no
 [Runtime]  DENIED: unsafe.cut — actuator_not_allowed:knife
 ```
 
-### Demo 4: Operator override — block a previously allowed skill
+### Demo 4: Graph halted mid-execution by policy
 
-Even if an EAP declares a skill as allowed, an operator can block it at runtime.
+An operator blocks `dumpling.wrap`. The plan runs, step 1 succeeds, but step 2 is denied — the entire graph halts.
 
 ```
->>> block dumpling.exec
-[Runtime]  Blocked: dumpling.exec
+>>> block dumpling.wrap
+[Runtime]  Blocked: dumpling.wrap
 
->>> make a dumpling
-[Agent]    Dispatching skill: dumpling.exec
-[Runtime]  Permission check: dumpling.exec (from com.eapos.dumpling)
-[Runtime]  DENIED: dumpling.exec — skill explicitly blocked by operator
-[Audit]    skill=dumpling.exec eap=com.eapos.dumpling decision=deny reason=skill explicitly blocked by operator
-[Agent]    Task blocked by policy.
+>>> make dumplings
+[Agent]    Task graph received: 3 steps
+[Agent]    Step 1/3: dumpling.prepare
+[Runtime]  Permission check: dumpling.prepare — OK
+[Skill]    Dough and filling ready.
+[Agent]    Step 2/3: dumpling.wrap
+[Runtime]  Permission check: dumpling.wrap (from com.eapos.dumpling)
+[Runtime]  DENIED: dumpling.wrap — skill explicitly blocked by operator
+[Agent]    Step 2 blocked by policy — task graph halted.
 ```
 
 ### Demo 5: EAP lifecycle — deactivate / activate / uninstall

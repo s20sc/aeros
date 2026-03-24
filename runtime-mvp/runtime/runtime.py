@@ -14,7 +14,7 @@ def execute_with_policy(skill_name, skill_entry):
     if not allowed:
         print(f"[Runtime]  DENIED: {skill_name} — {reason}")
         record(skill_name, eap_id, "deny", reason)
-        return False
+        return None
 
     print("[Runtime]  Permission — OK")
     record(skill_name, eap_id, "allow")
@@ -22,9 +22,10 @@ def execute_with_policy(skill_name, skill_entry):
 
     start = time.time()
 
+    result = None
     if hasattr(skill, "run"):
-        skill.run()
+        result = skill.run()
 
     elapsed = time.time() - start
     print(f"[Skill]    {skill_name} — completed ({elapsed:.1f}s)")
-    return True
+    return result if result is not None else True
