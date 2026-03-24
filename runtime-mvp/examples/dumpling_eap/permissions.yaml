@@ -1,22 +1,9 @@
-eap_id: com.eapos.dumpling
+allowed_skills:
+  - dumpling.plan
+  - dumpling.exec
 
-permissions:
-  - type: sensor
-    scope: camera.rgb
-    level: read
+actuators:
+  - gripper
+  - arm
 
-  - type: sensor
-    scope: force_torque
-    level: read
-
-  - type: actuator
-    scope: dumpling.*
-    level: execute
-
-  - type: actuator
-    scope: arm.*
-    level: execute
-
-  - type: data
-    scope: world_model
-    level: read
+risk_level: low

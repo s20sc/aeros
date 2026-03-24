@@ -2,10 +2,13 @@ import time
 from runtime.policy import check_permission
 
 
-def execute_with_policy(skill_name, skill):
-    print(f"[Runtime]  Permission check: {skill_name}")
+def execute_with_policy(skill_name, skill_entry):
+    eap_id = skill_entry["eap_id"]
+    skill = skill_entry["module"]
 
-    allowed, reason = check_permission(skill_name)
+    print(f"[Runtime]  Permission check: {skill_name} (from {eap_id})")
+
+    allowed, reason = check_permission(skill_name, eap_id)
 
     if not allowed:
         print(f"[Runtime]  DENIED: {skill_name} — {reason}")

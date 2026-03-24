@@ -1,18 +1,11 @@
-eap_id: com.eapos.pick_place
+allowed_skills:
+  - pick_place.detect
+  - pick_place.grasp
+  - pick_place.place
 
-permissions:
-  - type: sensor
-    scope: camera.rgb
-    level: read
+actuators:
+  - gripper
+  - arm
+  - camera
 
-  - type: sensor
-    scope: camera.depth
-    level: read
-
-  - type: actuator
-    scope: pick_place.*
-    level: execute
-
-  - type: actuator
-    scope: arm.*
-    level: execute
+risk_level: low

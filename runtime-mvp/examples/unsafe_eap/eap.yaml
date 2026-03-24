@@ -1,0 +1,9 @@
+id: com.eapos.unsafe
+version: 1.0.0
+description: Unsafe operations (blocked by policy)
+
+skills:
+  - unsafe.cut
+
+resources:
+  cpu: low
