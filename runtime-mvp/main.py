@@ -8,7 +8,7 @@ from eap.loader import load_eap
 from eap.registry import list_skills, list_eaps, activate_eap, deactivate_eap, uninstall_eap
 from runtime.policy import block_skill, unblock_skill
 from runtime.audit import get_log
-from runtime.trace import print_trace, export_trace_json, save_trace, generate_mermaid, visualize
+from runtime.trace import print_trace, export_trace_json, save_trace, generate_mermaid, visualize, set_live_path
 
 
 STATE_ICONS = {
@@ -78,6 +78,11 @@ def main():
     agent = Agent()
     base = os.path.dirname(__file__)
     examples_dir = os.path.join(base, "examples")
+
+    # Enable live trace for UI
+    ui_dir = os.path.join(base, "..", "ui")
+    if os.path.isdir(ui_dir):
+        set_live_path(os.path.join(ui_dir, "latest_trace.json"))
 
     # Auto-load example EAPs
     for name in sorted(os.listdir(examples_dir)):

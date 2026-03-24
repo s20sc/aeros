@@ -1,5 +1,6 @@
 const fileInput = document.getElementById("fileInput");
 const fileName = document.getElementById("fileName");
+const liveBtn = document.getElementById("liveBtn");
 const taskCard = document.getElementById("taskCard");
 const taskName = document.getElementById("taskName");
 const taskResult = document.getElementById("taskResult");
@@ -13,18 +14,54 @@ const stepsTableBody = document.querySelector("#stepsTable tbody");
 
 mermaid.initialize({ startOnLoad: false, theme: "dark" });
 
+let lastTraceHash = null;
+let liveInterval = null;
+let mermaidCounter = 0;
+
+// File input
 fileInput.addEventListener("change", async (event) => {
   const file = event.target.files[0];
   if (!file) return;
-
   fileName.textContent = file.name;
   const text = await file.text();
   const trace = JSON.parse(text);
   renderTrace(trace);
 });
 
+// Live mode toggle
+liveBtn.addEventListener("click", () => {
+  if (liveInterval) {
+    clearInterval(liveInterval);
+    liveInterval = null;
+    liveBtn.textContent = "Live Mode: OFF";
+    liveBtn.classList.remove("active");
+    fileName.textContent = "";
+  } else {
+    liveBtn.textContent = "Live Mode: ON";
+    liveBtn.classList.add("active");
+    fileName.textContent = "Polling latest_trace.json...";
+    liveInterval = setInterval(pollTrace, 800);
+    pollTrace();
+  }
+});
+
+async function pollTrace() {
+  try {
+    const res = await fetch("latest_trace.json?t=" + Date.now());
+    if (!res.ok) return;
+    const trace = await res.json();
+    const hash = JSON.stringify(trace);
+    if (hash !== lastTraceHash) {
+      lastTraceHash = hash;
+      fileName.textContent = "Live — updated " + new Date().toLocaleTimeString();
+      renderTrace(trace);
+    }
+  } catch (e) {
+    // Waiting for trace file
+  }
+}
+
 function renderTrace(trace) {
-  // Task info
   taskCard.style.display = "block";
   taskName.textContent = trace.task || "unknown";
 
@@ -36,14 +73,9 @@ function renderTrace(trace) {
   const finished = trace.finished_at || "?";
   taskTime.textContent = `${started}  \u2192  ${finished}`;
 
-  // Flow view
   const grouped = buildGrouped(trace.steps || []);
   renderFlow(grouped);
-
-  // Mermaid
   renderMermaid(grouped);
-
-  // Steps table
   renderSteps(trace.steps || []);
 }
 
@@ -93,7 +125,8 @@ function renderFlow(grouped) {
     node.textContent = label;
 
     let cls = "flow-node ";
-    if (item.finalStatus === "success") cls += "success";
+    if (item.finalStatus === "running") cls += "running";
+    else if (item.finalStatus === "success") cls += "success";
     else if (item.finalStatus === "failed") cls += "failed";
     else if (item.isRecovery) cls += "recovered";
 
@@ -131,26 +164,27 @@ async function renderMermaid(grouped) {
     }
   });
 
-  // Styles
   lines.push("");
   grouped.forEach((item, i) => {
     const nid = `N${i}`;
-    if (item.finalStatus === "success") {
+    if (item.finalStatus === "running") {
+      lines.push(`    style ${nid} fill:#1f6feb,stroke:#388bfd,color:#fff`);
+    } else if (item.finalStatus === "success") {
       lines.push(`    style ${nid} fill:#238636,stroke:#3fb950,color:#fff`);
     } else if (item.finalStatus === "failed") {
       lines.push(`    style ${nid} fill:#da3633,stroke:#f85149,color:#fff`);
-    } else if (item.isRecovery) {
-      lines.push(`    style ${nid} fill:#d29922,stroke:#e3b341,color:#fff`);
     }
   });
 
   const mermaidCode = lines.join("\n");
 
   try {
-    const { svg } = await mermaid.render("mermaidGraph", mermaidCode);
+    mermaidCounter++;
+    const id = "mermaidGraph" + mermaidCounter;
+    const { svg } = await mermaid.render(id, mermaidCode);
     mermaidView.innerHTML = svg;
   } catch (e) {
-    mermaidView.innerHTML = `<pre>${mermaidCode}</pre>`;
+    mermaidView.innerHTML = `<pre style="color:#8b949e">${mermaidCode}</pre>`;
   }
 }
 
@@ -160,6 +194,8 @@ function renderSteps(steps) {
 
   for (const step of steps) {
     const tr = document.createElement("tr");
+    tr.className = "row-" + (step.status || "");
+
     tr.innerHTML = `
       <td>${step.id || ""}</td>
       <td>${step.skill || ""}</td>
@@ -168,6 +204,7 @@ function renderSteps(steps) {
       <td>${step.reason || ""}</td>
       <td>${step.time || ""}</td>
     `;
+
     stepsTableBody.appendChild(tr);
   }
 }

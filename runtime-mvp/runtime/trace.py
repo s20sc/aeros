@@ -3,6 +3,18 @@ import datetime
 import os
 
 _current_trace = None
+_live_path = None
+
+
+def set_live_path(path):
+    global _live_path
+    _live_path = path
+
+
+def _write_live():
+    if _live_path and _current_trace:
+        with open(_live_path, "w") as f:
+            json.dump(_current_trace, f, indent=2)
 
 
 def start_trace(task_name):
@@ -13,6 +25,7 @@ def start_trace(task_name):
         "steps": [],
         "result": "running",
     }
+    _write_live()
 
 
 def add_step(step_id, skill_name, status, reason=None, attempt=1):
@@ -26,6 +39,7 @@ def add_step(step_id, skill_name, status, reason=None, attempt=1):
         "attempt": attempt,
         "time": datetime.datetime.now().isoformat(timespec="seconds"),
     })
+    _write_live()
 
 
 def finish_trace(result):
@@ -33,6 +47,7 @@ def finish_trace(result):
         return
     _current_trace["result"] = result
     _current_trace["finished_at"] = datetime.datetime.now().isoformat(timespec="seconds")
+    _write_live()
 
 
 def get_trace():
