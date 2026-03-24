@@ -1,5 +1,5 @@
 from agent.planner import plan
-from eap.registry import get_skill
+from eap.registry import get_skill, make_stub_skill
 from runtime.runtime import execute_with_policy
 
 
@@ -21,9 +21,13 @@ class Agent:
             skill = get_skill(skill_name)
 
             if not skill:
-                print(f"[Agent]    Skill not found: {skill_name}")
-                continue
+                # Skill not installed — create stub so runtime can still check policy
+                skill = make_stub_skill(skill_name)
 
-            execute_with_policy(skill_name, skill)
+            success = execute_with_policy(skill_name, skill)
+
+            if not success:
+                print("[Agent]    Task blocked by policy.")
+                return
 
         print("[Agent]    Task complete.")

@@ -1,0 +1,18 @@
+eap_id: com.eapos.pick_place
+
+permissions:
+  - type: sensor
+    scope: camera.rgb
+    level: read
+
+  - type: sensor
+    scope: camera.depth
+    level: read
+
+  - type: actuator
+    scope: pick_place.*
+    level: execute
+
+  - type: actuator
+    scope: arm.*
+    level: execute

@@ -42,30 +42,71 @@ It defines a new computational model:
 ## Quick Start
 
 ```bash
-# Install an EAP
-eapos install ./examples/dumpling_eap
-
-# List installed capabilities
-eapos list
-
-# Run a task
-eapos run "make a dumpling"
-
-# Check logs
-eapos logs
+cd runtime-mvp
+pip install pyyaml
+python main.py
 ```
 
+### Demo 1: Make a dumpling (EAP: dumpling)
+
 ```
+>>> make a dumpling
 [Agent]    Received: "make a dumpling"
 [Agent]    Planning task...
-[Agent]    Selected EAP: com.eapos.dumpling
 [Agent]    Dispatching skill: dumpling.plan
-[Runtime]  Permission check: sensor.camera — OK
-[Runtime]  Permission check: actuator.arm — OK
-[Skill]    dumpling.plan — completed (1.2s)
+[Runtime]  Permission check: dumpling.plan
+[Runtime]  Permission — OK
+[Runtime]  Executing: dumpling.plan
+[Skill]    Analyzing instruction...
+[Skill]    Task graph generated:
+[Skill]      step 1: prepare_dough
+[Skill]      step 2: add_filling (after step 1)
+[Skill]      step 3: wrap (after step 2)
+[Skill]      step 4: steam (after step 3)
+[Skill]    dumpling.plan — completed (0.3s)
 [Agent]    Dispatching skill: dumpling.exec
-[Skill]    dumpling.exec — completed (12.4s)
+[Runtime]  Permission check: dumpling.exec
+[Runtime]  Permission — OK
+[Runtime]  Executing: dumpling.exec
+[Skill]    Picking up dough...
+[Skill]    Wrapping filling...
+[Skill]    Shaping dumpling...
+[Skill]    Placing on tray...
+[Skill]    Dumpling complete.
+[Skill]    dumpling.exec — completed (0.8s)
 [Agent]    Task complete.
+```
+
+### Demo 2: Pick up a cup (EAP: pick_place)
+
+```
+>>> pick up the cup
+[Agent]    Received: "pick up the cup"
+[Agent]    Planning task...
+[Agent]    Dispatching skill: pick_place.detect
+[Runtime]  Permission check: pick_place.detect — OK
+[Skill]    Scanning workspace with RGB-D camera...
+[Skill]    Detected: red_cup at (0.35, 0.12, 0.08)
+[Agent]    Dispatching skill: pick_place.grasp
+[Runtime]  Permission check: pick_place.grasp — OK
+[Skill]    Computing grasp pose...
+[Skill]    Gripper closed — object secured
+[Agent]    Dispatching skill: pick_place.place
+[Runtime]  Permission check: pick_place.place — OK
+[Skill]    Gripper open — object placed
+[Agent]    Task complete.
+```
+
+### Demo 3: Policy denial (unsafe operation)
+
+```
+>>> cut with knife
+[Agent]    Received: "cut with knife"
+[Agent]    Planning task...
+[Agent]    Dispatching skill: unsafe.cut
+[Runtime]  Permission check: unsafe.cut
+[Runtime]  DENIED: unsafe.cut — no EAP grants permission for 'unsafe'
+[Agent]    Task blocked by policy.
 ```
 
 ---
@@ -129,6 +170,7 @@ Skills define *what* to do. The runtime defines *what is allowed*. Execution con
 - `/spec` — conceptual and architectural specifications
 - `/schemas` — machine-readable definitions
 - `/examples` — reference capability packages
+- `/runtime-mvp` — minimal viable runtime (Python)
 - `/docs` — developer guides
 
 ---

@@ -1,6 +1,7 @@
 import os
 import yaml
-from eap.registry import register_skill
+from eap.registry import register_skill, register_eap
+from runtime.policy import load_permissions
 
 
 def load_eap(path):
@@ -12,6 +13,10 @@ def load_eap(path):
     eap_id = config["id"]
     print(f"[EAP]      Loading: {eap_id} v{config['version']}")
 
+    # Load permissions
+    load_permissions(path, eap_id)
+
+    # Register skills
     skills_dir = os.path.join(path, "skills")
 
     for skill_name in config.get("skills", []):
@@ -24,4 +29,5 @@ def load_eap(path):
         else:
             print(f"[EAP]      Warning: skill file not found: {module_path}")
 
+    register_eap(eap_id, config)
     print(f"[EAP]      Loaded: {eap_id}")
