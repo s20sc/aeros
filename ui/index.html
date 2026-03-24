@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EAPOS Trace Viewer</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>EAPOS Trace Viewer</h1>
+    <p class="subtitle">Execution trace visualization for the Embodied Ability Package Operating System</p>
+
+    <div class="controls">
+      <label class="file-label" for="fileInput">Load trace JSON</label>
+      <input type="file" id="fileInput" accept=".json" />
+      <span id="fileName" class="file-name"></span>
+    </div>
+
+    <div class="card" id="taskCard" style="display:none">
+      <h2>Task</h2>
+      <div class="task-info">
+        <span class="task-name" id="taskName"></span>
+        <span class="task-result" id="taskResult"></span>
+      </div>
+      <div class="task-time" id="taskTime"></div>
+    </div>
+
+    <div class="card" id="flowCard" style="display:none">
+      <h2>Execution Flow</h2>
+      <div id="flowView" class="flow-view"></div>
+    </div>
+
+    <div class="card" id="mermaidCard" style="display:none">
+      <h2>Graph</h2>
+      <div id="mermaidView" class="mermaid-view"></div>
+    </div>
+
+    <div class="card" id="stepsCard" style="display:none">
+      <h2>Step Details</h2>
+      <table id="stepsTable">
+        <thead>
+          <tr>
+            <th>Step</th>
+            <th>Skill</th>
+            <th>Status</th>
+            <th>Attempt</th>
+            <th>Reason</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
