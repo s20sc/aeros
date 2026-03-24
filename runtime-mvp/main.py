@@ -8,7 +8,7 @@ from eap.loader import load_eap
 from eap.registry import list_skills, list_eaps, activate_eap, deactivate_eap, uninstall_eap
 from runtime.policy import block_skill, unblock_skill
 from runtime.audit import get_log
-from runtime.trace import print_trace, export_trace_json, save_trace, generate_mermaid
+from runtime.trace import print_trace, export_trace_json, save_trace, generate_mermaid, visualize
 
 
 STATE_ICONS = {
@@ -35,6 +35,7 @@ EAPOS Commands:
   trace json             Export trace as JSON
   trace save             Save trace to JSON file
   trace mermaid          Generate Mermaid flowchart
+  trace viz              Compact one-line execution graph
   help                   Show this message
   exit                   Quit
 """)
@@ -155,6 +156,8 @@ def main():
             m = generate_mermaid()
             if m:
                 print(f"\n{m}\n")
+        elif line == "trace viz":
+            visualize()
         elif line.startswith("block "):
             skill = line[6:].strip()
             block_skill(skill)

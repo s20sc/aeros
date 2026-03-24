@@ -81,6 +81,52 @@ def save_trace(directory="."):
     return filepath
 
 
+def visualize():
+    """Print a compact one-line execution graph."""
+    trace = get_trace()
+    if not trace:
+        print("No execution trace yet.\n")
+        return
+
+    from collections import OrderedDict
+    grouped = OrderedDict()
+
+    for entry in trace["steps"]:
+        sid = entry["id"]
+        if sid not in grouped:
+            grouped[sid] = {
+                "skill": entry["skill"],
+                "fail_count": 0,
+                "final_status": "running",
+            }
+        if entry["status"] == "failed":
+            grouped[sid]["fail_count"] += 1
+        grouped[sid]["final_status"] = entry["status"]
+
+    nodes = []
+    for info in grouped.values():
+        label = info["skill"]
+        fc = info["fail_count"]
+        fs = info["final_status"]
+
+        if fc > 0 and fs == "success":
+            label = f"{label}(retry x{fc})"
+        elif fc > 0 and fs == "failed":
+            label = f"{label}(FAIL x{fc})"
+
+        if "_recovery" not in label:
+            # Check if this is a recovery step
+            pass
+
+        nodes.append(label)
+
+    task = trace.get("task", "unknown")
+    result = trace.get("result", "?")
+    print(f"\n{task} [{result}]:")
+    print("  " + " -> ".join(nodes))
+    print()
+
+
 def generate_mermaid():
     """Generate a Mermaid flowchart from the execution trace."""
     trace = get_trace()
