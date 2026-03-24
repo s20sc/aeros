@@ -8,7 +8,7 @@ from eap.loader import load_eap
 from eap.registry import list_skills, list_eaps, activate_eap, deactivate_eap, uninstall_eap
 from runtime.policy import block_skill, unblock_skill
 from runtime.audit import get_log
-from runtime.trace import print_trace, export_trace_json
+from runtime.trace import print_trace, export_trace_json, save_trace, generate_mermaid
 
 
 STATE_ICONS = {
@@ -33,6 +33,8 @@ EAPOS Commands:
   audit                  Show policy audit log
   trace                  Show last execution trace
   trace json             Export trace as JSON
+  trace save             Save trace to JSON file
+  trace mermaid          Generate Mermaid flowchart
   help                   Show this message
   exit                   Quit
 """)
@@ -82,7 +84,7 @@ def main():
         if os.path.isdir(eap_path) and os.path.exists(os.path.join(eap_path, "eap.yaml")):
             load_eap(eap_path)
 
-    print("\nEAPOS Runtime v0.9")
+    print("\nEAPOS Runtime v1.0")
     print('Type "help" for commands\n')
 
     while True:
@@ -147,6 +149,12 @@ def main():
             j = export_trace_json()
             if j:
                 print(j)
+        elif line == "trace save":
+            save_trace()
+        elif line == "trace mermaid":
+            m = generate_mermaid()
+            if m:
+                print(f"\n{m}\n")
         elif line.startswith("block "):
             skill = line[6:].strip()
             block_skill(skill)
