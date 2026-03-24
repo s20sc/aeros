@@ -1,0 +1,47 @@
+{
+  "experiment_1_replanning": {
+    "static": {
+      "success_rate": 70.0,
+      "avg_steps": 3.7,
+      "avg_replan_count": 1.0
+    },
+    "dynamic": {
+      "success_rate": 100.0,
+      "avg_steps": 4.4,
+      "avg_replan_count": 5.0
+    }
+  },
+  "experiment_2_retry_recovery": {
+    "No Retry / No Recovery": {
+      "success_rate": 49.0,
+      "avg_steps": 3.5,
+      "avg_recovery_count": 0.0
+    },
+    "Retry Only": {
+      "success_rate": 79.0,
+      "avg_steps": 4.3,
+      "avg_recovery_count": 0.0
+    },
+    "Retry + Recovery": {
+      "success_rate": 100.0,
+      "avg_steps": 5.2,
+      "avg_recovery_count": 0.3
+    }
+  },
+  "experiment_3_policy": {
+    "disabled": {
+      "blocking_rate": 0.0,
+      "false_acceptance_rate": 100.0,
+      "false_rejection_rate": 0.0,
+      "avg_overhead_ms": 0.0,
+      "total_checks": 1800
+    },
+    "enabled": {
+      "blocking_rate": 100.0,
+      "false_acceptance_rate": 0.0,
+      "false_rejection_rate": 0.0,
+      "avg_overhead_ms": 0.0,
+      "total_checks": 1800
+    }
+  }
+}
