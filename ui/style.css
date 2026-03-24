@@ -114,6 +114,37 @@ tr.current-step {
   font-size: 13px;
 }
 
+.world-view {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+
+.world-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #0d1117;
+  border: 1px solid #21262d;
+  border-radius: 6px;
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 12px;
+}
+
+.world-key {
+  color: #8b949e;
+}
+
+.world-val {
+  font-weight: 600;
+}
+
+.world-val.val-true { color: #3fb950; }
+.world-val.val-false { color: #f85149; }
+.world-val.val-none { color: #484f58; }
+.world-val.val-string { color: #58a6ff; }
+
 .card {
   background: #161b22;
   border: 1px solid #30363d;
