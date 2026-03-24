@@ -76,6 +76,7 @@ function renderTrace(trace) {
   const grouped = buildGrouped(trace.steps || []);
   renderFlow(grouped);
   renderMermaid(grouped);
+  renderTimeline(trace.steps || []);
   renderSteps(trace.steps || []);
 }
 
@@ -186,6 +187,78 @@ async function renderMermaid(grouped) {
   } catch (e) {
     mermaidView.innerHTML = `<pre style="color:#8b949e">${mermaidCode}</pre>`;
   }
+}
+
+function renderTimeline(steps) {
+  const timelineCard = document.getElementById("timelineCard");
+  const timeline = document.getElementById("timeline");
+  const timelineStats = document.getElementById("timelineStats");
+
+  timelineCard.style.display = "block";
+  timeline.innerHTML = "";
+  timelineStats.innerHTML = "";
+
+  // Group by step_id, compute duration from first running to last entry
+  const grouped = new Map();
+  const order = [];
+
+  for (const step of steps) {
+    if (!grouped.has(step.id)) {
+      grouped.set(step.id, { skill: step.skill, entries: [], finalStatus: "running", isRecovery: step.id.includes("_recovery") });
+      order.push(step.id);
+    }
+    const g = grouped.get(step.id);
+    g.entries.push(step);
+    g.finalStatus = step.status;
+  }
+
+  const items = [];
+  let totalDuration = 0;
+
+  for (const id of order) {
+    const g = grouped.get(id);
+    const entries = g.entries;
+    const first = entries[0];
+    const last = entries[entries.length - 1];
+
+    let duration;
+    if (first.time_ms && last.time_ms) {
+      duration = Math.max(last.time_ms - first.time_ms, 50);
+    } else {
+      duration = 500; // fallback
+    }
+
+    items.push({ skill: g.skill, status: g.finalStatus, duration, isRecovery: g.isRecovery });
+    totalDuration += duration;
+  }
+
+  // Render bars
+  for (const item of items) {
+    const pct = Math.max((item.duration / totalDuration) * 100, 5);
+    const bar = document.createElement("div");
+
+    let statusClass = "tl-" + item.status;
+    if (item.isRecovery && item.status === "success") statusClass = "tl-recovered";
+
+    bar.className = `timeline-bar ${statusClass}`;
+    bar.style.width = `${pct}%`;
+
+    const durText = (item.duration / 1000).toFixed(2);
+    bar.textContent = `${item.skill} (${durText}s)`;
+    bar.title = `${item.skill}: ${durText}s — ${item.status}`;
+
+    timeline.appendChild(bar);
+  }
+
+  // Stats
+  const totalSec = (totalDuration / 1000).toFixed(2);
+  const statsHtml = items.map(item => {
+    const durText = (item.duration / 1000).toFixed(2);
+    const dotClass = item.isRecovery ? "recovered" : item.status;
+    return `<span class="timeline-stat"><span class="stat-dot ${dotClass}"></span>${item.skill}: ${durText}s</span>`;
+  }).join("");
+
+  timelineStats.innerHTML = `<span class="timeline-stat">Total: ${totalSec}s</span>` + statsHtml;
 }
 
 function renderSteps(steps) {
