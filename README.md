@@ -1,13 +1,10 @@
-# EAPOS Specification
+# EAPOS
 
-**Embodied Ability Package Operating System (EAPOS)**
+**Embodied Ability Package Operating System**
 
-EAPOS is a capability-packaged operating architecture for embodied intelligent systems.
+A capability-packaged operating architecture for embodied intelligent systems.
 
-It defines a new computational model:
-
-> **One Robot = One Persistent Agent**
-> **Capabilities = Installable Packages (EAPs)**
+> **One Robot = One Persistent Agent. Capabilities = Installable Packages.**
 
 ---
 
@@ -15,25 +12,23 @@ It defines a new computational model:
 
 ```
 ┌─────────────────────────────────────────────┐
-│                   Agent                     │
-│          (Single Persistent Subject)        │
+│              Persistent Agent               │
+│         (sense → plan → act loop)           │
 ├─────────────────────────────────────────────┤
 │              EAP Manager                    │
-│    ┌─────────┐ ┌─────────┐ ┌─────────┐     │
-│    │ EAP: A  │ │ EAP: B  │ │ EAP: C  │     │
-│    │┌───────┐│ │┌───────┐│ │┌───────┐│     │
-│    ││ skill ││ ││ skill ││ ││ skill ││     │
-│    │└───────┘│ │└───────┘│ │└───────┘│     │
-│    └─────────┘ └─────────┘ └─────────┘     │
+│   ┌──────────┐ ┌──────────┐ ┌──────────┐   │
+│   │ dumpling │ │pick_place│ │  clean   │   │
+│   │ EAP      │ │ EAP      │ │  EAP     │   │
+│   └──────────┘ └──────────┘ └──────────┘   │
 ├─────────────────────────────────────────────┤
 │              Runtime Layer                  │
-│  ┌──────────┐ ┌───────────┐ ┌───────────┐  │
-│  │ Policy   │ │ Permission│ │ Execution  │  │
-│  │ Engine   │ │ Guard     │ │ Scheduler  │  │
-│  └──────────┘ └───────────┘ └───────────┘  │
+│  Policy ∙ Permissions ∙ Audit ∙ Trace      │
 ├─────────────────────────────────────────────┤
-│           Hardware / Simulation             │
-│     sensors    actuators    world model     │
+│          Perception + World State           │
+├─────────────────────────────────────────────┤
+│          Robot API (Mock / Gazebo)          │
+├─────────────────────────────────────────────┤
+│          Hardware / Simulation              │
 └─────────────────────────────────────────────┘
 ```
 
@@ -47,200 +42,154 @@ pip install pyyaml
 python main.py
 ```
 
-### Demo 1: Resilient task graph — retry + fallback + continue (EAP: dumpling)
-
-The plan skill generates a structured task graph. Steps support `retry`, `on_failure` (fallback), and `continue_on_recovery` (resume after recovery).
-
 ```
-Task graph:
-  -> dumpling.prepare
-  -> dumpling.wrap [retry=2, fallback=dumpling.recover, continue_on_recovery]
-  -> dumpling.boil
-```
+EAPOS Runtime v1.0
+Type "help" for commands
 
-**Path A — success on first try:**
-
-```
-Step 1/3: dumpling.prepare — OK
-Step 2/3: dumpling.wrap — OK
-Step 3/3: dumpling.boil — OK
-All steps complete. Task done.
-```
-
-**Path B — retry succeeds:**
-
-```
-Step 2/3: dumpling.wrap
-[Skill]    ERROR: filling leaked during fold
-[Agent]    Step 2 failed — retrying (2/3)
-[Skill]    Dumpling wrapped.
-Step 3/3: dumpling.boil — OK
-All steps complete. Task done.
-```
-
-**Path C — all retries fail, fallback triggered, execution continues:**
-
-```
-Step 2/3: dumpling.wrap
-[Skill]    ERROR: filling leaked during fold — retrying (2/3)
-[Skill]    ERROR: filling leaked during fold — retrying (3/3)
-[Skill]    ERROR: filling leaked during fold
-[Agent]    Step 2 failed after 3 attempt(s): wrap_integrity_check_failed
-[Agent]    Triggering fallback: dumpling.recover
-[Skill]    Initiating recovery procedure...
-[Skill]    Recovery complete — ready for retry.
-[Agent]    Recovery succeeded — continuing execution.
-Step 3/3: dumpling.boil — OK
-All steps complete. Task done.
-```
-
-### Demo 2: Pick up a cup (EAP: pick_place)
-
-```
+>>> make dumplings
+>>> clean table
 >>> pick up the cup
-[Agent]    Received: "pick up the cup"
-[Agent]    Planning task...
-[Agent]    Dispatching skill: pick_place.detect
-[Runtime]  Permission check: pick_place.detect (from com.eapos.pick_place)
-[Runtime]  Permission — OK
-[Skill]    Scanning workspace with RGB-D camera...
-[Skill]    Detected: red_cup at (0.35, 0.12, 0.08)
-[Agent]    Dispatching skill: pick_place.grasp
-[Runtime]  Permission check: pick_place.grasp (from com.eapos.pick_place)
-[Runtime]  Permission — OK
-[Skill]    Computing grasp pose...
-[Skill]    Gripper closed — object secured
-[Agent]    Dispatching skill: pick_place.place
-[Runtime]  Permission check: pick_place.place (from com.eapos.pick_place)
-[Runtime]  Permission — OK
-[Skill]    Gripper open — object placed
-[Agent]    Task complete.
 ```
 
-### Demo 3: Policy denial — risk level blocked by system policy
+To launch the web UI (in a second terminal):
 
-The `unsafe_eap` declares `unsafe.cut` as allowed, but with `risk_level: high`.
-The system policy blocks all high-risk skills. The skill is installed — **but the runtime refuses**.
+```bash
+cd ui && python3 -m http.server 8000
+# Open http://localhost:8000, click "Live Mode: ON"
+```
+
+---
+
+## What It Does
+
+### Dynamic Re-planning Loop
+
+The agent doesn't execute a fixed script. It runs a **sense → plan → act** loop:
+
+```
+>>> make dumplings
+
+[Agent]    === Re-plan cycle 1 ===
+[Planner]  -> dumpling.prepare (materials needed)
+[Planner]  -> dumpling.wrap (wrapping needed)
+[Planner]  -> dumpling.boil (cooking needed)
+[Planner]  Dynamic plan: 3 step(s)
+[Agent]    Executing next: dumpling.prepare
+[Robot]    Moving arm to 'dough_station'...
+[Robot]    Grasping...
+
+[Agent]    === Re-plan cycle 2 ===
+[Planner]  -> dumpling.wrap (wrapping needed)    ← prepare done, skipped
+[Planner]  -> dumpling.boil (cooking needed)
+[Agent]    Executing next: dumpling.wrap
+[Percept]  Workspace ready: True
+[Percept]  Wrapper alignment check: aligned
+[Robot]    Moving arm to 'dough'...
+
+[Agent]    === Re-plan cycle 3 ===
+[Planner]  -> dumpling.boil (cooking needed)     ← wrap done, skipped
+[Agent]    Executing next: dumpling.boil
+
+[Agent]    === Re-plan cycle 4 ===
+[Planner]  Nothing to do — task already complete.
+```
+
+Each cycle: planner reads world state, generates only the steps still needed, executes one, then re-plans.
+
+### Policy Enforcement (3 layers)
 
 ```
 >>> cut with knife
-[Agent]    Received: "cut with knife"
-[Agent]    Dispatching skill: unsafe.cut
-[Runtime]  Permission check: unsafe.cut (from com.eapos.unsafe)
 [Runtime]  DENIED: unsafe.cut — blocked_risk_level:high
-[Audit]    skill=unsafe.cut eap=com.eapos.unsafe decision=deny reason=blocked_risk_level:high
-[Agent]    Task blocked by policy.
-```
 
-If the risk block is lifted, the skill is **still denied** because `knife` is not in the system's allowed actuator list:
-
-```
-[Runtime]  DENIED: unsafe.cut — actuator_not_allowed:knife
-```
-
-### Demo 4: Graph halted mid-execution by policy
-
-An operator blocks `dumpling.wrap`. The plan runs, step 1 succeeds, but step 2 is denied — the entire graph halts.
-
-```
 >>> block dumpling.wrap
 [Runtime]  Blocked: dumpling.wrap
-
 >>> make dumplings
-[Agent]    Task graph received: 3 steps
-[Agent]    Step 1/3: dumpling.prepare
-[Runtime]  Permission check: dumpling.prepare — OK
-[Skill]    Dough and filling ready.
-[Agent]    Step 2/3: dumpling.wrap
-[Runtime]  Permission check: dumpling.wrap (from com.eapos.dumpling)
-[Runtime]  DENIED: dumpling.wrap — skill explicitly blocked by operator
 [Agent]    Step 2 blocked by policy — task graph halted.
 ```
 
-### Demo 5: EAP lifecycle — deactivate / activate / uninstall
+| Layer | Mechanism |
+|-------|-----------|
+| Operator override | `block` / `unblock` commands |
+| EAP declaration | `allowed_skills` whitelist in permissions.yaml |
+| System policy | Risk levels + actuator scope enforcement |
+
+### Retry + Fallback + Recovery
+
+```
+[Skill]    ERROR: filling leaked during fold
+[Agent]    Failed — retrying (2/3)
+[Skill]    ERROR: filling leaked during fold — retrying (3/3)
+[Agent]    Triggering fallback: dumpling.recover
+[Skill]    Initiating recovery procedure...
+[Skill]    Wrapper alignment corrected.
+[Agent]    Recovery succeeded — continuing execution.
+[Agent]    Step 3/3: dumpling.boil — OK
+```
+
+### EAP Lifecycle
 
 ```
 >>> list
-[*] EAP: com.eapos.dumpling    state: activated
-[*] EAP: com.eapos.pick_place  state: activated
-[*] EAP: com.eapos.unsafe      state: activated
+[*] com.eapos.dumpling     v3.0.0  activated
+[*] com.eapos.pick_place   v1.0.0  activated
+[*] com.eapos.clean_table  v1.0.0  activated
+[x] com.eapos.unsafe       v1.0.0  uninstalled
 
 >>> deactivate com.eapos.dumpling
-[EAP]      Deactivated: com.eapos.dumpling
-
->>> make a dumpling
-[Agent]    Skill not found: dumpling.plan
-[Agent]    Task blocked — skill not installed.
-
+>>> make dumplings
+[Agent]    Skill not found — task blocked.
 >>> activate com.eapos.dumpling
-[EAP]      Activated: com.eapos.dumpling
-
->>> make a dumpling
+>>> make dumplings
 [Agent]    Task complete.
-
->>> uninstall com.eapos.unsafe
-[EAP]      Uninstalled: com.eapos.unsafe
-
->>> list
-[*] EAP: com.eapos.dumpling    state: activated
-[*] EAP: com.eapos.pick_place  state: activated
-[x] EAP: com.eapos.unsafe      state: uninstalled
 ```
 
-### Demo 6: Detailed package inspection
+### World State + Perception
+
+Skills perceive the world before acting. The planner adapts based on what has changed.
 
 ```
->>> list
-[*] EAP: com.eapos.dumpling
-    version: 1.0.0
-    state:   activated
-    skills:
-      - dumpling.plan (active)
-      - dumpling.exec (active)
-    permissions:
-      dumpling.plan: risk=low, actuators=[]
-      dumpling.exec: risk=low, actuators=['arm', 'gripper']
+>>> world
+=== WORLD STATE ===
+  robot_position: pot
+  dumpling_cooked: True
+  table_wiped: True
+  table_organized: True
 ```
 
-### Demo 7: Audit log
+### Web UI — Live Dashboard
 
-Every allow/deny decision is recorded with timestamp, skill, EAP, and reason.
+The Trace Viewer shows real-time execution with:
 
-```
->>> audit
-Audit Log:
-  1. [2026-03-24T14:39:40] skill=dumpling.plan eap=com.eapos.dumpling decision=allow
-  2. [2026-03-24T14:39:41] skill=dumpling.exec eap=com.eapos.dumpling decision=allow
-  3. [2026-03-24T14:39:42] skill=unsafe.cut eap=com.eapos.unsafe decision=deny reason=blocked_risk_level:high
-```
+- **World State** panel — color-coded environment properties
+- **Execution Flow** — node graph with retry/failure indicators
+- **Mermaid Graph** — auto-generated flowchart
+- **Timeline** — proportional duration bars per step
+- **Step Details** — full state transition table
+- **Replay** — step-by-step playback animation
+- **Live Mode** — auto-refreshes as the runtime executes
 
 ---
 
-## What is EAPOS?
+## CLI Commands
 
-EAPOS is not a framework, and not a middleware.
-
-It is an operating model for robots:
-
-- A robot is a single persistent intelligent subject
-- Capabilities are modular, installable packages
-- Execution is governed by a policy-enforced runtime
-
----
-
-## Why EAPOS?
-
-Existing robotic systems suffer from:
-
-- fragmented control authority
-- poor capability reuse
-- tight coupling between logic and execution
-
-EAPOS introduces:
-
-- unified agent-centric control
-- capability-level modularity
-- system-level safety enforcement
+| Command | Description |
+|---------|-------------|
+| `<instruction>` | Run a task ("make dumplings", "clean table", "pick up the cup") |
+| `list` | Show all EAPs with state, skills, permissions |
+| `install <path>` | Install and activate an EAP |
+| `activate <id>` | Activate a deactivated EAP |
+| `deactivate <id>` | Deactivate (skills become unavailable) |
+| `uninstall <id>` | Remove an EAP |
+| `block <skill>` | Operator override: block a skill |
+| `unblock <skill>` | Remove operator block |
+| `world` | Inspect current world state |
+| `audit` | View policy decision log |
+| `trace` | View execution trace table |
+| `trace viz` | Compact one-line execution graph |
+| `trace mermaid` | Generate Mermaid flowchart |
+| `trace save` | Export trace to JSON file |
+| `trace json` | Print trace as JSON |
 
 ---
 
@@ -248,73 +197,41 @@ EAPOS introduces:
 
 ### 1. Single-Agent Principle
 
-Each robot contains exactly one persistent agent. The agent is the sole locus of decision-making, memory, and identity. There are no competing controllers — only one subject that reasons, plans, and acts.
+Each robot contains exactly one persistent agent — the sole locus of decision-making, memory, and identity.
 
-### 2. Capability Packaging Principle
+### 2. Capability Packaging
 
-All capabilities are delivered through EAPs — modular, versioned, installable packages. A robot gains new abilities by installing EAPs, not by rewriting its core. Skills, models, and tools are composed, not hardcoded.
+All capabilities are delivered through EAPs — modular, versioned, installable packages. A robot gains new abilities by installing EAPs, not by rewriting its core.
 
 ### 3. Policy-Logic Separation
 
-Skills define *what* to do. The runtime defines *what is allowed*. Execution constraints (permissions, safety bounds, resource limits) are enforced by the system, not by individual skills. No skill can bypass the runtime.
-
----
-
-## Core Components
-
-| Component | Description |
-|-----------|-------------|
-| Agent     | The single persistent intelligent subject |
-| EAP       | Capability packages (skills, tools, models) |
-| Runtime   | Execution + policy enforcement layer |
+Skills define *what* to do. The runtime defines *what is allowed*. No skill can bypass the runtime.
 
 ---
 
 ## Repository Structure
 
-- `/spec` — conceptual and architectural specifications
-- `/schemas` — machine-readable definitions
-- `/examples` — reference capability packages
-- `/runtime-mvp` — minimal viable runtime (Python)
-- `/ui` — web-based trace viewer (load JSON, Mermaid graph)
-- `/docs` — developer guides
-
----
-
-## Example EAP
-
-```yaml
-id: com.eapos.dumpling
-version: 1.0.0
-skills:
-  - dumpling.plan
-  - dumpling.exec
-resources:
-  cpu: medium
-  gpu: optional
 ```
-
----
-
-## Status
-
-Draft v0.1 — early-stage specification
+eapos-spec/
+├── spec/           Architectural specifications
+├── schemas/        Machine-readable JSON schemas
+├── examples/       Reference EAP definitions (YAML)
+├── runtime-mvp/    Working runtime implementation (Python)
+│   ├── agent/        Agent + planner + re-planning loop
+│   ├── eap/          EAP loader + registry + lifecycle
+│   ├── runtime/      Policy, audit, trace, robot API, world state, perception
+│   └── examples/     4 EAPs: dumpling, pick_place, clean_table, unsafe
+├── ui/             Web-based trace viewer + live dashboard
+└── docs/           Developer guide
+```
 
 ---
 
 ## Relation to Paper
 
-This repository provides the reference specification for:
+This repository provides the reference implementation for:
 
 > *Toward Single-Agent Robots: A Capability-Packaged Operating Architecture (EAPOS)*
-
----
-
-## Vision
-
-EAPOS aims to become:
-
-> **The operating standard for capability-driven robots.**
 
 ---
 
