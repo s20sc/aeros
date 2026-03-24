@@ -8,15 +8,15 @@ def run():
     graph = {
         "task": "make_dumplings",
         "steps": [
-            {"skill": "dumpling.prepare", "depends_on": None},
-            {"skill": "dumpling.wrap", "depends_on": "dumpling.prepare"},
-            {"skill": "dumpling.boil", "depends_on": "dumpling.wrap"},
+            {"skill": "dumpling.prepare"},
+            {"skill": "dumpling.wrap", "on_failure": "dumpling.recover"},
+            {"skill": "dumpling.boil"},
         ]
     }
 
-    print(f"[Skill]    Task graph:")
+    print("[Skill]    Task graph:")
     for step in graph["steps"]:
-        dep = f" (after {step['depends_on']})" if step["depends_on"] else ""
-        print(f"[Skill]      -> {step['skill']}{dep}")
+        fallback = f" [fallback: {step['on_failure']}]" if "on_failure" in step else ""
+        print(f"[Skill]      -> {step['skill']}{fallback}")
 
-    return graph
+    return {"status": "success", "task_graph": graph}
