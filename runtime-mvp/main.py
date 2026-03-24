@@ -8,6 +8,7 @@ from eap.loader import load_eap
 from eap.registry import list_skills, list_eaps, activate_eap, deactivate_eap, uninstall_eap
 from runtime.policy import block_skill, unblock_skill
 from runtime.audit import get_log
+from runtime.trace import print_trace, export_trace_json
 
 
 STATE_ICONS = {
@@ -30,6 +31,8 @@ EAPOS Commands:
   block <skill>          Block a skill (operator override)
   unblock <skill>        Unblock a skill
   audit                  Show policy audit log
+  trace                  Show last execution trace
+  trace json             Export trace as JSON
   help                   Show this message
   exit                   Quit
 """)
@@ -79,7 +82,7 @@ def main():
         if os.path.isdir(eap_path) and os.path.exists(os.path.join(eap_path, "eap.yaml")):
             load_eap(eap_path)
 
-    print("\nEAPOS Runtime v0.5")
+    print("\nEAPOS Runtime v0.9")
     print('Type "help" for commands\n')
 
     while True:
@@ -138,6 +141,12 @@ def main():
                 print()
             else:
                 print("No audit entries yet.\n")
+        elif line == "trace":
+            print_trace()
+        elif line == "trace json":
+            j = export_trace_json()
+            if j:
+                print(j)
         elif line.startswith("block "):
             skill = line[6:].strip()
             block_skill(skill)
