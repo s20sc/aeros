@@ -2,24 +2,23 @@ class WorldState:
     """Observable world state shared across the system."""
 
     def __init__(self):
+        # Robot
         self.robot_position = "home"
         self.gripper_holding = None
+
+        # Dumpling task
         self.dough_on_workspace = False
         self.filling_on_workspace = False
         self.wrapper_aligned = False
         self.dumpling_wrapped = False
         self.dumpling_cooked = False
 
+        # Clean table task
+        self.table_wiped = False
+        self.table_organized = False
+
     def snapshot(self):
-        return {
-            "robot_position": self.robot_position,
-            "gripper_holding": self.gripper_holding,
-            "dough_on_workspace": self.dough_on_workspace,
-            "filling_on_workspace": self.filling_on_workspace,
-            "wrapper_aligned": self.wrapper_aligned,
-            "dumpling_wrapped": self.dumpling_wrapped,
-            "dumpling_cooked": self.dumpling_cooked,
-        }
+        return {k: v for k, v in self.__dict__.items() if not k.startswith("_")}
 
     def __repr__(self):
         items = ", ".join(f"{k}={v}" for k, v in self.snapshot().items())

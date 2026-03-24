@@ -3,9 +3,11 @@ def plan(instruction):
     instruction = instruction.lower()
 
     if "dumpling" in instruction:
-        return "dumpling.plan"  # returns a task graph
+        return "dumpling.plan"
+    elif "clean" in instruction or "table" in instruction:
+        return "clean.plan"
     elif "pick" in instruction:
-        return "pick_place.detect"  # first in a direct chain
+        return "pick_place.detect"
     elif "place" in instruction:
         return "pick_place.place"
     elif "cut" in instruction or "knife" in instruction:

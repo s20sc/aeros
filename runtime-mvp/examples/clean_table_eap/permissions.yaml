@@ -1,0 +1,21 @@
+allowed_skills:
+  - clean.plan
+  - clean.wipe
+  - clean.organize
+
+skill_permissions:
+  clean.plan:
+    actuators: []
+    risk_level: low
+
+  clean.wipe:
+    actuators:
+      - arm
+      - gripper
+    risk_level: low
+
+  clean.organize:
+    actuators:
+      - arm
+      - gripper
+    risk_level: low
