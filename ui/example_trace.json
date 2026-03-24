@@ -1,0 +1,56 @@
+{
+  "task": "make_dumplings",
+  "started_at": "2026-03-24T15:21:15",
+  "steps": [
+    {
+      "id": "step_1",
+      "skill": "dumpling.prepare",
+      "status": "running",
+      "reason": null,
+      "attempt": 1,
+      "time": "2026-03-24T15:21:15"
+    },
+    {
+      "id": "step_1",
+      "skill": "dumpling.prepare",
+      "status": "success",
+      "reason": null,
+      "attempt": 1,
+      "time": "2026-03-24T15:21:16"
+    },
+    {
+      "id": "step_2",
+      "skill": "dumpling.wrap",
+      "status": "running",
+      "reason": null,
+      "attempt": 1,
+      "time": "2026-03-24T15:21:16"
+    },
+    {
+      "id": "step_2",
+      "skill": "dumpling.wrap",
+      "status": "success",
+      "reason": null,
+      "attempt": 1,
+      "time": "2026-03-24T15:21:16"
+    },
+    {
+      "id": "step_3",
+      "skill": "dumpling.boil",
+      "status": "running",
+      "reason": null,
+      "attempt": 1,
+      "time": "2026-03-24T15:21:16"
+    },
+    {
+      "id": "step_3",
+      "skill": "dumpling.boil",
+      "status": "success",
+      "reason": null,
+      "attempt": 1,
+      "time": "2026-03-24T15:21:17"
+    }
+  ],
+  "result": "completed",
+  "finished_at": "2026-03-24T15:21:17"
+}

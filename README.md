@@ -276,6 +276,7 @@ Skills define *what* to do. The runtime defines *what is allowed*. Execution con
 - `/schemas` — machine-readable definitions
 - `/examples` — reference capability packages
 - `/runtime-mvp` — minimal viable runtime (Python)
+- `/ui` — web-based trace viewer (load JSON, Mermaid graph)
 - `/docs` — developer guides
 
 ---
