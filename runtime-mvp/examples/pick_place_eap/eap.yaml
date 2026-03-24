@@ -1,0 +1,12 @@
+id: com.eapos.pick_place
+version: 1.0.0
+description: Generic pick and place capability
+
+skills:
+  - pick_place.detect
+  - pick_place.grasp
+  - pick_place.place
+
+resources:
+  cpu: medium
+  gpu: required

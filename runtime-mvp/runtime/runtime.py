@@ -5,9 +5,11 @@ from runtime.policy import check_permission
 def execute_with_policy(skill_name, skill):
     print(f"[Runtime]  Permission check: {skill_name}")
 
-    if not check_permission(skill_name):
-        print(f"[Runtime]  DENIED: {skill_name}")
-        return
+    allowed, reason = check_permission(skill_name)
+
+    if not allowed:
+        print(f"[Runtime]  DENIED: {skill_name} — {reason}")
+        return False
 
     print("[Runtime]  Permission — OK")
     print(f"[Runtime]  Executing: {skill_name}")
@@ -19,3 +21,4 @@ def execute_with_policy(skill_name, skill):
 
     elapsed = time.time() - start
     print(f"[Skill]    {skill_name} — completed ({elapsed:.1f}s)")
+    return True

@@ -1,0 +1,22 @@
+eap_id: com.eapos.dumpling
+
+permissions:
+  - type: sensor
+    scope: camera.rgb
+    level: read
+
+  - type: sensor
+    scope: force_torque
+    level: read
+
+  - type: actuator
+    scope: dumpling.*
+    level: execute
+
+  - type: actuator
+    scope: arm.*
+    level: execute
+
+  - type: data
+    scope: world_model
+    level: read
