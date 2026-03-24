@@ -1,6 +1,6 @@
 import os
 import yaml
-from eap.registry import register_skill, register_eap
+from eap.registry import register_eap, activate_eap
 
 
 def load_eap(path):
@@ -10,7 +10,7 @@ def load_eap(path):
         config = yaml.safe_load(f)
 
     eap_id = config["id"]
-    print(f"[EAP]      Loading: {eap_id} v{config['version']}")
+    print(f"[EAP]      Installing: {eap_id} v{config['version']}")
 
     # Load permissions
     perm_path = os.path.join(path, "permissions.yaml")
@@ -19,28 +19,23 @@ def load_eap(path):
         with open(perm_path) as f:
             permissions = yaml.safe_load(f) or {}
 
-    allowed = permissions.get("allowed_skills", [])
+    # Show skill-level permissions
     skill_perms = permissions.get("skill_permissions", {})
-    print(f"[EAP]      Allowed skills: {allowed}")
     for sk, sp in skill_perms.items():
         acts = sp.get("actuators", [])
         risk = sp.get("risk_level", "low")
         print(f"[EAP]        {sk}: actuators={acts}, risk={risk}")
 
-    # Register EAP with permissions
-    register_eap(eap_id, config, permissions)
+    # Register EAP (state: installed)
+    register_eap(eap_id, config, permissions, os.path.abspath(path))
+    print(f"[EAP]      Installed: {eap_id}")
 
-    # Register skills
-    skills_dir = os.path.join(path, "skills")
-
-    for skill_name in config.get("skills", []):
-        module_file = skill_name.split(".")[-1] + ".py"
-        module_path = os.path.join(skills_dir, module_file)
-
-        if os.path.exists(module_path):
-            register_skill(skill_name, module_path, eap_id)
-            print(f"[EAP]      Registered skill: {skill_name}")
-        else:
-            print(f"[EAP]      Warning: skill file not found: {module_path}")
-
-    print(f"[EAP]      Loaded: {eap_id}")
+    # Auto-activate
+    ok, err = activate_eap(eap_id)
+    if ok:
+        skills = config.get("skills", [])
+        for s in skills:
+            print(f"[EAP]      Registered skill: {s}")
+        print(f"[EAP]      Activated: {eap_id}")
+    else:
+        print(f"[EAP]      Activation failed: {err}")
