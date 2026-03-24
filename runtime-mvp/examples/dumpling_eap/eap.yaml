@@ -1,10 +1,12 @@
 id: com.eapos.dumpling
-version: 1.0.0
+version: 2.0.0
 description: Dumpling making capability
 
 skills:
   - dumpling.plan
-  - dumpling.exec
+  - dumpling.prepare
+  - dumpling.wrap
+  - dumpling.boil
 
 resources:
   cpu: medium

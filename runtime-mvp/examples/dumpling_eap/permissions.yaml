@@ -1,14 +1,27 @@
 allowed_skills:
   - dumpling.plan
-  - dumpling.exec
+  - dumpling.prepare
+  - dumpling.wrap
+  - dumpling.boil
 
 skill_permissions:
   dumpling.plan:
     actuators: []
     risk_level: low
 
-  dumpling.exec:
+  dumpling.prepare:
     actuators:
       - arm
       - gripper
+    risk_level: low
+
+  dumpling.wrap:
+    actuators:
+      - arm
+      - gripper
+    risk_level: low
+
+  dumpling.boil:
+    actuators:
+      - arm
     risk_level: low
