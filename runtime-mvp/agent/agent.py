@@ -44,51 +44,60 @@ class Agent:
         else:
             print("[Agent]    Task complete.")
 
+    def _execute_step(self, skill_name):
+        """Execute a single skill. Returns result dict."""
+        skill_entry = get_skill(skill_name)
+        if not skill_entry:
+            print(f"[Agent]    Skill not found: {skill_name}")
+            return {"status": "failure", "reason": "skill_not_found"}
+        return execute_with_policy(skill_name, skill_entry)
+
     def _execute_graph(self, steps):
         total = len(steps)
 
         for i, step in enumerate(steps, 1):
             skill_name = step["skill"] if isinstance(step, dict) else step
+            retries = step.get("retry", 0) if isinstance(step, dict) else 0
             fallback = step.get("on_failure") if isinstance(step, dict) else None
+            continue_on_recovery = step.get("continue_on_recovery", False) if isinstance(step, dict) else False
 
             print(f"[Agent]    Step {i}/{total}: {skill_name}")
 
-            skill_entry = get_skill(skill_name)
-            if not skill_entry:
-                print(f"[Agent]    Skill not found: {skill_name}")
-                print("[Agent]    Task graph halted.")
-                return
+            # Try execution with retries
+            result = self._execute_step(skill_name)
+            attempt = 1
 
-            result = execute_with_policy(skill_name, skill_entry)
-            status = result.get("status", "success")
+            while result.get("status") != "success" and attempt <= retries:
+                attempt += 1
+                reason = result.get("reason", "unknown")
+                print(f"[Agent]    Step {i} failed: {reason} — retrying ({attempt}/{retries + 1})")
+                result = self._execute_step(skill_name)
 
-            # Step succeeded — continue
-            if status == "success":
+            # Step succeeded
+            if result.get("status") == "success":
                 continue
 
-            # Step failed — try fallback if available
+            # Step failed after all retries — try fallback
+            reason = result.get("reason", "unknown")
+            print(f"[Agent]    Step {i} failed after {attempt} attempt(s): {reason}")
+
             if fallback:
-                reason = result.get("reason", "unknown")
-                print(f"[Agent]    Step {i} failed: {reason}")
                 print(f"[Agent]    Triggering fallback: {fallback}")
-
-                fb_entry = get_skill(fallback)
-                if not fb_entry:
-                    print(f"[Agent]    Fallback skill not found: {fallback}")
-                    print("[Agent]    Task graph halted.")
-                    return
-
-                fb_result = execute_with_policy(fallback, fb_entry)
+                fb_result = self._execute_step(fallback)
 
                 if fb_result.get("status") == "success":
-                    print(f"[Agent]    Fallback succeeded — task graph halted (needs replanning).")
+                    if continue_on_recovery:
+                        print(f"[Agent]    Recovery succeeded — continuing execution.")
+                        continue
+                    else:
+                        print(f"[Agent]    Recovery succeeded — task graph halted (safe stop).")
+                        return
                 else:
-                    print(f"[Agent]    Fallback also failed — task graph halted.")
-                return
+                    print(f"[Agent]    Recovery failed — task graph halted.")
+                    return
 
-            # Step failed, no fallback — halt
-            reason = result.get("reason", "unknown")
-            print(f"[Agent]    Step {i} failed: {reason} — task graph halted.")
+            # No fallback — halt
+            print(f"[Agent]    No fallback defined — task graph halted.")
             return
 
         print("[Agent]    All steps complete. Task done.")

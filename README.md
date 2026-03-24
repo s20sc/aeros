@@ -47,42 +47,51 @@ pip install pyyaml
 python main.py
 ```
 
-### Demo 1: Task graph with fallback (EAP: dumpling)
+### Demo 1: Resilient task graph — retry + fallback + continue (EAP: dumpling)
 
-The plan skill generates a structured task graph. Steps can declare `on_failure` fallbacks. The agent executes steps sequentially with per-step policy checks, skill failure detection, and automatic fallback.
-
-**Success path:**
+The plan skill generates a structured task graph. Steps support `retry`, `on_failure` (fallback), and `continue_on_recovery` (resume after recovery).
 
 ```
->>> make dumplings
-[Agent]    Dispatching plan skill: dumpling.plan
-[Skill]    Task graph:
-[Skill]      -> dumpling.prepare
-[Skill]      -> dumpling.wrap [fallback: dumpling.recover]
-[Skill]      -> dumpling.boil
-[Agent]    Task graph received: 3 steps
-[Agent]    Step 1/3: dumpling.prepare — OK
-[Agent]    Step 2/3: dumpling.wrap — OK
-[Agent]    Step 3/3: dumpling.boil — OK
-[Agent]    All steps complete. Task done.
+Task graph:
+  -> dumpling.prepare
+  -> dumpling.wrap [retry=2, fallback=dumpling.recover, continue_on_recovery]
+  -> dumpling.boil
 ```
 
-**Failure path — skill fails, fallback triggered:**
+**Path A — success on first try:**
 
 ```
->>> make dumplings
-[Agent]    Step 1/3: dumpling.prepare — OK
-[Agent]    Step 2/3: dumpling.wrap
-[Skill]    Placing filling on dough...
+Step 1/3: dumpling.prepare — OK
+Step 2/3: dumpling.wrap — OK
+Step 3/3: dumpling.boil — OK
+All steps complete. Task done.
+```
+
+**Path B — retry succeeds:**
+
+```
+Step 2/3: dumpling.wrap
 [Skill]    ERROR: filling leaked during fold
-[Skill]    dumpling.wrap — FAILED: wrap_integrity_check_failed
-[Agent]    Step 2 failed: wrap_integrity_check_failed
+[Agent]    Step 2 failed — retrying (2/3)
+[Skill]    Dumpling wrapped.
+Step 3/3: dumpling.boil — OK
+All steps complete. Task done.
+```
+
+**Path C — all retries fail, fallback triggered, execution continues:**
+
+```
+Step 2/3: dumpling.wrap
+[Skill]    ERROR: filling leaked during fold — retrying (2/3)
+[Skill]    ERROR: filling leaked during fold — retrying (3/3)
+[Skill]    ERROR: filling leaked during fold
+[Agent]    Step 2 failed after 3 attempt(s): wrap_integrity_check_failed
 [Agent]    Triggering fallback: dumpling.recover
 [Skill]    Initiating recovery procedure...
-[Skill]    Discarding failed dumpling
-[Skill]    Resetting workspace
 [Skill]    Recovery complete — ready for retry.
-[Agent]    Fallback succeeded — task graph halted (needs replanning).
+[Agent]    Recovery succeeded — continuing execution.
+Step 3/3: dumpling.boil — OK
+All steps complete. Task done.
 ```
 
 ### Demo 2: Pick up a cup (EAP: pick_place)
