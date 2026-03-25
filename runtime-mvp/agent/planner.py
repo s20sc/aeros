@@ -16,7 +16,7 @@ def plan(instruction):
         return None
 
 
-# Direct skill chains (for EAPs without a plan skill)
+# Direct skill chains (for ECMs without a plan skill)
 DIRECT_CHAINS = {
     "pick_place.detect": ["pick_place.detect", "pick_place.grasp", "pick_place.place"],
     "pick_place.place": ["pick_place.place"],

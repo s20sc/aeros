@@ -1,0 +1,49 @@
+{
+  "metadata": {
+    "robot_backend": "mock",
+    "n_trials": 100,
+    "robot_model": "MockRobot",
+    "simulation": "None (mock)"
+  },
+  "experiment_4_baseline": {
+    "Flat Pipeline": {
+      "success_rate": 77.0,
+      "ci_lower": 67.8,
+      "ci_upper": 84.2,
+      "avg_steps": 2.8,
+      "avg_robot_actions": 0.0
+    },
+    "BT Fallback (2 retries)": {
+      "success_rate": 95.0,
+      "ci_lower": 88.8,
+      "ci_upper": 97.8,
+      "avg_steps": 3.2,
+      "avg_robot_actions": 0.0
+    },
+    "AEROS (full)": {
+      "success_rate": 100.0,
+      "ci_lower": 96.3,
+      "ci_upper": 100.0,
+      "avg_steps": 4.3,
+      "avg_robot_actions": 0.0
+    }
+  },
+  "experiment_5_cross_task": {
+    "static": {
+      "success_rate": 54.0,
+      "ci_lower": 44.3,
+      "ci_upper": 63.4,
+      "avg_steps": 1.5,
+      "avg_replan_count": 1.0,
+      "avg_robot_actions": 0.0
+    },
+    "dynamic": {
+      "success_rate": 87.0,
+      "ci_lower": 79.0,
+      "ci_upper": 92.2,
+      "avg_steps": 2.3,
+      "avg_replan_count": 2.7,
+      "avg_robot_actions": 0.0
+    }
+  }
+}

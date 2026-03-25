@@ -1,4 +1,4 @@
-id: com.eapos.unsafe
+id: com.aeros.unsafe
 version: 1.0.0
 description: Unsafe operations (blocked by policy)
 

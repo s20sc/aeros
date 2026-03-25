@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-EAPOS Evaluation Experiments
+AEROS Evaluation Experiments
 =============================
-Three experiments to validate the EAPOS architecture:
+Three experiments to validate the AEROS architecture:
   1. Dynamic Re-planning vs Static Planning
   2. Retry / Recovery robustness
   3. Policy Enforcement effectiveness
@@ -25,7 +25,7 @@ def reset_all():
     import runtime.audit as audit_mod
     import runtime.trace as trace_mod
     import runtime.policy as policy_mod
-    import eap.registry as reg_mod
+    import ecm.registry as reg_mod
 
     world.reset()
 
@@ -49,7 +49,7 @@ def reset_all():
     policy_mod._blocked_skills.clear()
 
     reg_mod._skill_registry.clear()
-    reg_mod._eap_registry.clear()
+    reg_mod._ecm_registry.clear()
 
 
 def _patch_sleep():
@@ -65,15 +65,15 @@ def _unpatch_sleep():
         _time.sleep = _time._original_sleep
 
 
-def load_eaps():
-    """Load all example EAPs."""
-    from eap.loader import load_eap
+def load_ecms():
+    """Load all example ECMs."""
+    from ecm.loader import load_ecm
     base = os.path.dirname(__file__)
     examples_dir = os.path.join(base, "examples")
     for name in sorted(os.listdir(examples_dir)):
-        eap_path = os.path.join(examples_dir, name)
-        if os.path.isdir(eap_path) and os.path.exists(os.path.join(eap_path, "eap.yaml")):
-            load_eap(eap_path)
+        ecm_path = os.path.join(examples_dir, name)
+        if os.path.isdir(ecm_path) and os.path.exists(os.path.join(ecm_path, "ecm.yaml")):
+            load_ecm(ecm_path)
 
 
 # ---------------------------------------------------------------------------
@@ -91,7 +91,7 @@ def run_dynamic_replan_trial(seed):
     """Run one trial with dynamic re-planning (normal agent behavior)."""
     random.seed(seed)
     reset_all()
-    load_eaps()
+    load_ecms()
 
     from agent.agent import Agent
     from runtime.world.context import world
@@ -125,9 +125,9 @@ def run_static_plan_trial(seed):
     """Run one trial with static planning: generate plan once, execute all steps in order."""
     random.seed(seed)
     reset_all()
-    load_eaps()
+    load_ecms()
 
-    from eap.registry import get_skill
+    from ecm.registry import get_skill
     from runtime.runtime import execute_with_policy
     from runtime.world.context import world
     from runtime.trace import start_trace, add_step, finish_trace, get_trace
@@ -229,13 +229,13 @@ def run_retry_recovery_trial(seed, enable_retry, enable_recovery, fail_rate=0.5)
     """Run one dumpling trial with configurable retry/recovery and failure rate."""
     random.seed(seed)
     reset_all()
-    load_eaps()
+    load_ecms()
 
     from runtime.world.context import world
     from runtime.trace import get_trace
     import runtime.perception.perception as percept_mod
 
-    from eap.registry import get_skill
+    from ecm.registry import get_skill
 
     # Monkey-patch alignment detection to use custom fail_rate
     # Must patch both the module AND the wrap skill's local reference
@@ -355,12 +355,12 @@ def experiment_3_policy(n_trials=50):
     print(f"  Trials per condition: {n_trials}")
     print("=" * 60)
 
-    # Define test cases: (skill_name, eap_id, should_be_blocked)
+    # Define test cases: (skill_name, ecm_id, should_be_blocked)
     # We test with a mix of valid and invalid requests
     reset_all()
-    load_eaps()
+    load_ecms()
 
-    from eap.registry import get_skill, get_eap_permissions, _skill_registry, _eap_registry
+    from ecm.registry import get_skill, get_ecm_permissions, _skill_registry, _ecm_registry
     from runtime.policy import check_permission
     from runtime.system_policy import SYSTEM_POLICY
 
@@ -369,36 +369,36 @@ def experiment_3_policy(n_trials=50):
 
     # Valid skills (should be allowed)
     valid_skills = [
-        ("dumpling.plan", "com.eapos.dumpling"),
-        ("dumpling.prepare", "com.eapos.dumpling"),
-        ("dumpling.wrap", "com.eapos.dumpling"),
-        ("dumpling.boil", "com.eapos.dumpling"),
-        ("dumpling.recover", "com.eapos.dumpling"),
-        ("clean.plan", "com.eapos.clean_table"),
-        ("clean.wipe", "com.eapos.clean_table"),
-        ("clean.organize", "com.eapos.clean_table"),
-        ("pick_place.detect", "com.eapos.pick_place"),
-        ("pick_place.grasp", "com.eapos.pick_place"),
-        ("pick_place.place", "com.eapos.pick_place"),
+        ("dumpling.plan", "com.aeros.dumpling"),
+        ("dumpling.prepare", "com.aeros.dumpling"),
+        ("dumpling.wrap", "com.aeros.dumpling"),
+        ("dumpling.boil", "com.aeros.dumpling"),
+        ("dumpling.recover", "com.aeros.dumpling"),
+        ("clean.plan", "com.aeros.clean_table"),
+        ("clean.wipe", "com.aeros.clean_table"),
+        ("clean.organize", "com.aeros.clean_table"),
+        ("pick_place.detect", "com.aeros.pick_place"),
+        ("pick_place.grasp", "com.aeros.pick_place"),
+        ("pick_place.place", "com.aeros.pick_place"),
     ]
 
     # Invalid skills — blocked by policy (high risk, forbidden actuator)
     invalid_skills = [
-        ("unsafe.cut", "com.eapos.unsafe"),  # high risk + knife actuator
+        ("unsafe.cut", "com.aeros.unsafe"),  # high risk + knife actuator
     ]
 
-    # Cross-EAP violations: skill from wrong EAP (not in allowed_skills)
-    cross_eap_violations = [
-        ("dumpling.wrap", "com.eapos.clean_table"),
-        ("clean.wipe", "com.eapos.dumpling"),
-        ("pick_place.grasp", "com.eapos.dumpling"),
-        ("dumpling.boil", "com.eapos.pick_place"),
+    # Cross-ECM violations: skill from wrong EAP (not in allowed_skills)
+    cross_ecm_violations = [
+        ("dumpling.wrap", "com.aeros.clean_table"),
+        ("clean.wipe", "com.aeros.dumpling"),
+        ("pick_place.grasp", "com.aeros.dumpling"),
+        ("dumpling.boil", "com.aeros.pick_place"),
     ]
 
     # Nonexistent skill requests
     nonexistent_skills = [
-        ("fake.skill", "com.eapos.dumpling"),
-        ("dumpling.fly", "com.eapos.dumpling"),
+        ("fake.skill", "com.aeros.dumpling"),
+        ("dumpling.fly", "com.aeros.dumpling"),
     ]
 
     results_enabled = {"tp": 0, "fp": 0, "tn": 0, "fn": 0, "total_time_ms": 0, "checks": 0}
@@ -409,21 +409,21 @@ def experiment_3_policy(n_trials=50):
 
         # Shuffle test cases for each trial
         all_cases = []
-        for skill, eap in valid_skills:
-            all_cases.append((skill, eap, False))  # should NOT be blocked
-        for skill, eap in invalid_skills:
-            all_cases.append((skill, eap, True))  # should be blocked
-        for skill, eap in cross_eap_violations:
-            all_cases.append((skill, eap, True))  # should be blocked
-        for skill, eap in nonexistent_skills:
-            all_cases.append((skill, eap, True))  # should be blocked
+        for skill, ecm in valid_skills:
+            all_cases.append((skill, ecm, False))  # should NOT be blocked
+        for skill, ecm in invalid_skills:
+            all_cases.append((skill, ecm, True))  # should be blocked
+        for skill, ecm in cross_ecm_violations:
+            all_cases.append((skill, ecm, True))  # should be blocked
+        for skill, ecm in nonexistent_skills:
+            all_cases.append((skill, ecm, True))  # should be blocked
 
         random.shuffle(all_cases)
 
-        for skill_name, eap_id, should_block in all_cases:
+        for skill_name, ecm_id, should_block in all_cases:
             # --- Policy ENABLED ---
             t0 = time.perf_counter()
-            allowed, reason = check_permission(skill_name, eap_id)
+            allowed, reason = check_permission(skill_name, ecm_id)
             t1 = time.perf_counter()
             elapsed_ms = (t1 - t0) * 1000
             results_enabled["total_time_ms"] += elapsed_ms
@@ -491,7 +491,7 @@ def main():
     all_results = {}
 
     # Record backend
-    backend = os.environ.get("EAPOS_ROBOT", "mock")
+    backend = os.environ.get("AEROS_ROBOT", "mock")
     all_results["metadata"] = {
         "robot_backend": backend,
         "n_trials": N_TRIALS,

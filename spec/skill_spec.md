@@ -2,13 +2,13 @@
 
 ## Definition
 
-A Skill is the smallest executable unit within an EAP. It represents a single, well-defined capability that the agent can invoke.
+A Skill is the smallest executable unit within an ECM. It represents a single, well-defined capability that the agent can invoke.
 
 ## Structure
 
 Each skill declares:
 
-- **name**: unique identifier within the EAP
+- **name**: unique identifier within the ECM
 - **inputs**: typed input parameters
 - **outputs**: typed output schema
 - **preconditions**: world state requirements before execution

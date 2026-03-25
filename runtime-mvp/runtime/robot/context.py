@@ -1,6 +1,6 @@
 import os
 
-ROBOT_BACKEND = os.environ.get("EAPOS_ROBOT", "mock")
+ROBOT_BACKEND = os.environ.get("AEROS_ROBOT", "mock")
 
 if ROBOT_BACKEND == "pybullet":
     from runtime.robot.pybullet_robot import PyBulletRobot

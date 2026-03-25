@@ -1,5 +1,5 @@
 from agent.planner import plan, DIRECT_CHAINS
-from eap.registry import get_skill
+from ecm.registry import get_skill
 from runtime.runtime import execute_with_policy
 from runtime.trace import start_trace, add_step, finish_trace
 from runtime.world.context import world

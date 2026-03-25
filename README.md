@@ -1,6 +1,6 @@
-# EAPOS
+# AEROS
 
-**Embodied Ability Package Operating System**
+**Agent Execution Runtime Operating System**
 
 A capability-packaged operating architecture for embodied intelligent systems.
 
@@ -8,7 +8,7 @@ A capability-packaged operating architecture for embodied intelligent systems.
 
 ### [Watch the Demo](https://youtu.be/5KdKa5meWgw)
 
-[![EAPOS Demo](https://img.youtube.com/vi/5KdKa5meWgw/maxresdefault.jpg)](https://youtu.be/5KdKa5meWgw)
+[![AEROS Demo](https://img.youtube.com/vi/5KdKa5meWgw/maxresdefault.jpg)](https://youtu.be/5KdKa5meWgw)
 
 ---
 
@@ -19,10 +19,10 @@ A capability-packaged operating architecture for embodied intelligent systems.
 │              Persistent Agent               │
 │         (sense → plan → act loop)           │
 ├─────────────────────────────────────────────┤
-│              EAP Manager                    │
+│              ECM Manager                    │
 │   ┌──────────┐ ┌──────────┐ ┌──────────┐   │
 │   │ dumpling │ │pick_place│ │  clean   │   │
-│   │ EAP      │ │ EAP      │ │  EAP     │   │
+│   │ ECM      │ │ EAP      │ │  EAP     │   │
 │   └──────────┘ └──────────┘ └──────────┘   │
 ├─────────────────────────────────────────────┤
 │              Runtime Layer                  │
@@ -41,8 +41,8 @@ A capability-packaged operating architecture for embodied intelligent systems.
 ## Quick Start
 
 ```bash
-git clone https://github.com/s20sc/eapos-spec.git
-cd eapos-spec
+git clone https://github.com/s20sc/aeros.git
+cd aeros
 pip install -r requirements.txt
 cd runtime-mvp
 python main.py          # Interactive mode
@@ -50,7 +50,7 @@ bash demo.sh            # Or run the automated demo
 ```
 
 ```
-EAPOS Runtime v1.0
+AEROS Runtime v1.0
 Type "help" for commands
 
 >>> make dumplings
@@ -118,7 +118,7 @@ Each cycle: planner reads world state, generates only the steps still needed, ex
 | Layer | Mechanism |
 |-------|-----------|
 | Operator override | `block` / `unblock` commands |
-| EAP declaration | `allowed_skills` whitelist in permissions.yaml |
+| ECM declaration | `allowed_skills` whitelist in permissions.yaml |
 | System policy | Risk levels + actuator scope enforcement |
 
 ### Retry + Fallback + Recovery
@@ -134,19 +134,19 @@ Each cycle: planner reads world state, generates only the steps still needed, ex
 [Agent]    Step 3/3: dumpling.boil — OK
 ```
 
-### EAP Lifecycle
+### ECM Lifecycle
 
 ```
 >>> list
-[*] com.eapos.dumpling     v3.0.0  activated
-[*] com.eapos.pick_place   v1.0.0  activated
-[*] com.eapos.clean_table  v1.0.0  activated
-[x] com.eapos.unsafe       v1.0.0  uninstalled
+[*] com.aeros.dumpling     v3.0.0  activated
+[*] com.aeros.pick_place   v1.0.0  activated
+[*] com.aeros.clean_table  v1.0.0  activated
+[x] com.aeros.unsafe       v1.0.0  uninstalled
 
->>> deactivate com.eapos.dumpling
+>>> deactivate com.aeros.dumpling
 >>> make dumplings
 [Agent]    Skill not found — task blocked.
->>> activate com.eapos.dumpling
+>>> activate com.aeros.dumpling
 >>> make dumplings
 [Agent]    Task complete.
 ```
@@ -183,11 +183,11 @@ The Trace Viewer shows real-time execution with:
 | Command | Description |
 |---------|-------------|
 | `<instruction>` | Run a task ("make dumplings", "clean table", "pick up the cup") |
-| `list` | Show all EAPs with state, skills, permissions |
-| `install <path>` | Install and activate an EAP |
-| `activate <id>` | Activate a deactivated EAP |
+| `list` | Show all ECMs with state, skills, permissions |
+| `install <path>` | Install and activate an ECM |
+| `activate <id>` | Activate a deactivated ECM |
 | `deactivate <id>` | Deactivate (skills become unavailable) |
-| `uninstall <id>` | Remove an EAP |
+| `uninstall <id>` | Remove an ECM |
 | `block <skill>` | Operator override: block a skill |
 | `unblock <skill>` | Remove operator block |
 | `world` | Inspect current world state |
@@ -208,7 +208,7 @@ Each robot contains exactly one persistent agent — the sole locus of decision-
 
 ### 2. Capability Packaging
 
-All capabilities are delivered through EAPs — modular, versioned, installable packages. A robot gains new abilities by installing EAPs, not by rewriting its core.
+All capabilities are delivered through ECMs — modular, versioned, installable packages. A robot gains new abilities by installing ECMs, not by rewriting its core.
 
 ### 3. Policy-Logic Separation
 
@@ -219,15 +219,15 @@ Skills define *what* to do. The runtime defines *what is allowed*. No skill can 
 ## Repository Structure
 
 ```
-eapos-spec/
+aeros/
 ├── spec/           Architectural specifications
 ├── schemas/        Machine-readable JSON schemas
-├── examples/       Reference EAP definitions (YAML)
+├── examples/       Reference ECM definitions (YAML)
 ├── runtime-mvp/    Working runtime implementation (Python)
 │   ├── agent/        Agent + planner + re-planning loop
-│   ├── eap/          EAP loader + registry + lifecycle
+│   ├── eap/          ECM loader + registry + lifecycle
 │   ├── runtime/      Policy, audit, trace, robot API, world state, perception
-│   └── examples/     4 EAPs: dumpling, pick_place, clean_table, unsafe
+│   └── examples/     4 ECMs: dumpling, pick_place, clean_table, unsafe
 ├── ui/             Web-based trace viewer + live dashboard
 └── docs/           Developer guide
 ```
@@ -238,17 +238,17 @@ eapos-spec/
 
 This repository provides the reference implementation for:
 
-> *Toward Single-Agent Robots: A Capability-Packaged Operating Architecture (EAPOS) with Policy-Separated Runtime*
+> *Toward Single-Agent Robots: A Capability-Packaged Operating Architecture (AEROS) with Policy-Separated Runtime*
 
-The formal EAP definition $E_i = (\mathcal{C}_i, \mathcal{S}_i, \mathcal{M}_i, \mathcal{P}_i, \mathcal{D}_i)$ from the paper maps to:
+The formal ECM definition $E_i = (\mathcal{C}_i, \mathcal{S}_i, \mathcal{M}_i, \mathcal{P}_i, \mathcal{D}_i)$ from the paper maps to:
 
 | Paper Symbol | Implementation |
 |---|---|
-| $\mathcal{C}_i$ (Capabilities) | `capabilities` field in `eap.yaml` |
+| $\mathcal{C}_i$ (Capabilities) | `capabilities` field in `ecm.yaml` |
 | $\mathcal{S}_i$ (Skills) | `skills` field + Python modules in `skills/` |
-| $\mathcal{M}_i$ (Models/Tools) | `models` field in `eap.yaml` |
-| $\mathcal{P}_i$ (Permissions) | `permissions.yaml` per EAP |
-| $\mathcal{D}_i$ (Metadata) | `version`, `dependencies`, `compatibility` in `eap.yaml` |
+| $\mathcal{M}_i$ (Models/Tools) | `models` field in `ecm.yaml` |
+| $\mathcal{P}_i$ (Permissions) | `permissions.yaml` per ECM |
+| $\mathcal{D}_i$ (Metadata) | `version`, `dependencies`, `compatibility` in `ecm.yaml` |
 
 ---
 
@@ -269,8 +269,8 @@ This is a **lightweight reference implementation** intended to demonstrate the a
 If you use this code in your research, please cite:
 
 ```bibtex
-@inproceedings{qin2026eapos,
-  title={Toward Single-Agent Robots: A Capability-Packaged Operating Architecture (EAPOS) with Policy-Separated Runtime},
+@inproceedings{qin2026aeros,
+  title={Toward Single-Agent Robots: A Capability-Packaged Operating Architecture (AEROS) with Policy-Separated Runtime},
   author={Qin, Xue and Luan, Simin and Yang, Cong and Li, Zhijun},
   year={2026}
 }

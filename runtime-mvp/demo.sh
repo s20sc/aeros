@@ -1,8 +1,8 @@
 #!/bin/bash
-# EAPOS automated demo script
+# AEROS automated demo script
 # Run: cd runtime-mvp && bash demo.sh
 
-echo "=== EAPOS Runtime Demo ==="
+echo "=== AEROS Runtime Demo ==="
 echo ""
 
 python3 main.py <<'EOF'
