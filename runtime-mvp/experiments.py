@@ -28,7 +28,21 @@ def reset_all():
     import eap.registry as reg_mod
 
     world.reset()
-    _robot.__init__()
+
+    # Reset robot — PyBulletRobot needs special handling
+    if hasattr(_robot, 'action_log'):
+        # PyBullet robot: reset counters and move to home, don't reconnect
+        _robot.position = "home"
+        _robot.gripper = "open"
+        _robot.holding = None
+        _robot.total_actions = 0
+        _robot.total_ik_steps = 0
+        _robot.action_log = []
+        from runtime.robot.pybullet_robot import LOCATIONS
+        _robot._move_to_position(LOCATIONS["home"])
+    else:
+        _robot.__init__()
+
     audit_mod._log.clear()
     trace_mod._current_trace = None
     trace_mod._live_path = None
@@ -94,10 +108,16 @@ def run_dynamic_replan_trial(seed):
     import runtime.audit as audit_mod
     replan_count = sum(1 for e in audit_mod._log if e["skill"] == "dumpling.plan" and e["decision"] == "allow")
 
+    # Robot metrics
+    from runtime.robot.context import robot as _robot
+    robot_metrics = _robot.get_metrics() if hasattr(_robot, 'get_metrics') else {}
+
     return {
         "success": success,
         "steps": total_steps,
         "replan_count": replan_count,
+        "ik_steps": robot_metrics.get("total_ik_steps", 0),
+        "robot_actions": robot_metrics.get("total_actions", 0),
     }
 
 
@@ -148,10 +168,15 @@ def run_static_plan_trial(seed):
     finish_trace("completed" if success else "aborted")
     total_steps = count_steps(get_trace())
 
+    from runtime.robot.context import robot as _robot
+    robot_metrics = _robot.get_metrics() if hasattr(_robot, 'get_metrics') else {}
+
     return {
         "success": success,
         "steps": total_steps,
         "replan_count": 1,
+        "ik_steps": robot_metrics.get("total_ik_steps", 0),
+        "robot_actions": robot_metrics.get("total_actions", 0),
     }
 
 
@@ -174,10 +199,14 @@ def experiment_1_replanning(n_trials=50):
         successes = sum(1 for r in results if r["success"])
         avg_steps = sum(r["steps"] for r in results) / len(results)
         avg_replan = sum(r["replan_count"] for r in results) / len(results)
+        avg_ik = sum(r.get("ik_steps", 0) for r in results) / len(results)
+        avg_actions = sum(r.get("robot_actions", 0) for r in results) / len(results)
         return {
             "success_rate": round(successes / len(results) * 100, 1),
             "avg_steps": round(avg_steps, 1),
             "avg_replan_count": round(avg_replan, 1),
+            "avg_ik_steps": round(avg_ik, 1),
+            "avg_robot_actions": round(avg_actions, 1),
         }
 
     static_summary = summarize(static_results)
@@ -461,11 +490,19 @@ def main():
     N_TRIALS = 100
     all_results = {}
 
+    # Record backend
+    backend = os.environ.get("EAPOS_ROBOT", "mock")
+    all_results["metadata"] = {
+        "robot_backend": backend,
+        "n_trials": N_TRIALS,
+        "robot_model": "Franka Panda 7-DOF" if backend == "pybullet" else "MockRobot",
+        "simulation": "PyBullet" if backend == "pybullet" else "None (mock)",
+    }
+
     # Disable sleep for speed
     _patch_sleep()
 
-    # Suppress verbose per-trial output, only show summaries
-    print("Running experiments (suppressing per-trial output)...\n")
+    print(f"Running experiments (backend={backend}, n={N_TRIALS})...\n")
 
     f_null = io.StringIO()
 
