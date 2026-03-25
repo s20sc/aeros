@@ -1,4 +1,10 @@
-from runtime.robot.mock_robot import MockRobot
+import os
 
-# Global robot instance used by all skills
-robot = MockRobot()
+ROBOT_BACKEND = os.environ.get("EAPOS_ROBOT", "mock")
+
+if ROBOT_BACKEND == "pybullet":
+    from runtime.robot.pybullet_robot import PyBulletRobot
+    robot = PyBulletRobot(gui=False)
+else:
+    from runtime.robot.mock_robot import MockRobot
+    robot = MockRobot()
