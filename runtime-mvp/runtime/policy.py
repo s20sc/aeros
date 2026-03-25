@@ -1,4 +1,4 @@
-from eap.registry import get_eap_permissions
+from ecm.registry import get_ecm_permissions
 from runtime.system_policy import SYSTEM_POLICY
 
 _blocked_skills = set()
@@ -12,20 +12,20 @@ def unblock_skill(name):
     _blocked_skills.discard(name)
 
 
-def check_permission(skill_name, eap_id):
+def check_permission(skill_name, ecm_id):
     # Layer 1: operator override
     if skill_name in _blocked_skills:
         return False, "skill explicitly blocked by operator"
 
-    # Layer 2: EAP-declared allowed_skills
-    permissions = get_eap_permissions(eap_id)
+    # Layer 2: ECM-declared allowed_skills
+    permissions = get_ecm_permissions(ecm_id)
 
     if not permissions:
-        return False, f"EAP '{eap_id}' has no permissions declared"
+        return False, f"ECM '{ecm_id}' has no permissions declared"
 
     allowed_skills = permissions.get("allowed_skills", [])
     if skill_name not in allowed_skills:
-        return False, f"skill '{skill_name}' not in allowed_skills of '{eap_id}'"
+        return False, f"skill '{skill_name}' not in allowed_skills of '{ecm_id}'"
 
     # Layer 3: skill-level risk + actuator scope
     skill_permissions = permissions.get("skill_permissions", {})

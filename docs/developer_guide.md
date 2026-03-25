@@ -8,29 +8,29 @@
 ## Quick Start
 
 ```bash
-git clone https://github.com/s20sc/eapos-spec.git
-cd eapos-spec/runtime-mvp
+git clone https://github.com/s20sc/aeros.git
+cd aeros/runtime-mvp
 pip install -r ../requirements.txt
 python main.py
 ```
 
-## How to Build an EAP
+## How to Build an ECM
 
-An EAP (Embodied Ability Package) is a folder with this structure:
+An ECM (Embodied Capability Module) is a folder with this structure:
 
 ```
-my_eap/
-├── eap.yaml           # Manifest: id, version, skills list
+my_ecm/
+├── ecm.yaml           # Manifest: id, version, skills list
 ├── permissions.yaml   # Allowed skills, actuators, risk levels
 └── skills/
     ├── plan.py        # Planning skill (reads world state, returns task graph)
     └── action.py      # Action skill (calls robot API, updates world)
 ```
 
-### 1. Define eap.yaml
+### 1. Define ecm.yaml
 
 ```yaml
-id: com.eapos.my_task
+id: com.aeros.my_task
 version: 1.0.0
 description: My custom capability
 
@@ -103,7 +103,7 @@ def run():
 ### 4. Install and run
 
 ```
->>> install ./path/to/my_eap
+>>> install ./path/to/my_ecm
 >>> my task instruction
 ```
 

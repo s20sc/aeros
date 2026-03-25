@@ -1,12 +1,12 @@
-# EAP Schema Specification
+# ECM Schema Specification
 
 ## Definition
 
-An Embodied Ability Package (EAP) is a structured, installable unit that provides capabilities to a persistent agent.
+An Embodied Capability Module (ECM) is a structured, installable unit that provides capabilities to a persistent agent.
 
 ## Abstract Model
 
-An EAP is defined as:
+An ECM is defined as:
 
 ```
 E = (C, S, M, P, D)
@@ -24,7 +24,7 @@ Where:
 
 ## Required Components
 
-### 1. Manifest (eap.yaml)
+### 1. Manifest (ecm.yaml)
 
 Defines:
 
@@ -60,9 +60,9 @@ Declares:
 
 ## Key Constraints
 
-- EAP MUST NOT contain agent-level constructs
-- EAP MUST NOT maintain persistent identity
-- EAP MUST be invoked by the agent
+- ECM MUST NOT contain agent-level constructs
+- ECM MUST NOT maintain persistent identity
+- ECM MUST be invoked by the agent
 
 ---
 

@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "EAP Permission Profile",
-  "description": "Declares allowed skills and per-skill resource/safety constraints for an EAP.",
+  "title": "ECM Permission Profile",
+  "description": "Declares allowed skills and per-skill resource/safety constraints for an ECM.",
   "type": "object",
   "required": ["allowed_skills"],
   "properties": {
     "allowed_skills": {
       "type": "array",
-      "description": "List of skill identifiers this EAP is permitted to execute.",
+      "description": "List of skill identifiers this ECM is permitted to execute.",
       "items": { "type": "string" }
     },
     "skill_permissions": {

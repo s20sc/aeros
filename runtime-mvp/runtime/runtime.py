@@ -4,20 +4,20 @@ from runtime.audit import record
 
 
 def execute_with_policy(skill_name, skill_entry):
-    eap_id = skill_entry["eap_id"]
+    ecm_id = skill_entry["ecm_id"]
     skill = skill_entry["module"]
 
-    print(f"[Runtime]  Permission check: {skill_name} (from {eap_id})")
+    print(f"[Runtime]  Permission check: {skill_name} (from {ecm_id})")
 
-    allowed, reason = check_permission(skill_name, eap_id)
+    allowed, reason = check_permission(skill_name, ecm_id)
 
     if not allowed:
         print(f"[Runtime]  DENIED: {skill_name} — {reason}")
-        record(skill_name, eap_id, "deny", reason)
+        record(skill_name, ecm_id, "deny", reason)
         return {"status": "denied", "reason": reason}
 
     print("[Runtime]  Permission — OK")
-    record(skill_name, eap_id, "allow")
+    record(skill_name, ecm_id, "allow")
     print(f"[Runtime]  Executing: {skill_name}")
 
     start = time.time()
@@ -29,7 +29,7 @@ def execute_with_policy(skill_name, skill_entry):
     except Exception as e:
         elapsed = time.time() - start
         print(f"[Skill]    {skill_name} — CRASHED ({elapsed:.1f}s): {e}")
-        record(skill_name, eap_id, "skill_crash", str(e))
+        record(skill_name, ecm_id, "skill_crash", str(e))
         return {"status": "failure", "reason": f"skill_exception: {str(e)}"}
 
     elapsed = time.time() - start
@@ -44,6 +44,6 @@ def execute_with_policy(skill_name, skill_entry):
         print(f"[Skill]    {skill_name} — completed ({elapsed:.1f}s)")
     else:
         print(f"[Skill]    {skill_name} — FAILED ({elapsed:.1f}s): {result.get('reason', 'unknown')}")
-        record(skill_name, eap_id, "skill_failure", result.get("reason"))
+        record(skill_name, ecm_id, "skill_failure", result.get("reason"))
 
     return result

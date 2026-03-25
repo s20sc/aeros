@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Embodied Ability Package (EAP) Manifest",
-  "description": "Schema for an EAP manifest following the formal definition E_i = (C_i, S_i, M_i, P_i, D_i) from the EAPOS paper.",
+  "title": "Embodied Capability Module (ECM) Manifest",
+  "description": "Schema for an ECM manifest following the formal definition E_i = (C_i, S_i, M_i, P_i, D_i) from the AEROS paper.",
   "type": "object",
   "required": ["id", "version", "skills"],
   "properties": {
@@ -15,7 +15,7 @@
     },
     "description": {
       "type": "string",
-      "description": "Human-readable summary of the EAP. Part of D_i."
+      "description": "Human-readable summary of the ECM. Part of D_i."
     },
     "capabilities": {
       "type": "array",
@@ -45,7 +45,7 @@
     },
     "dependencies": {
       "type": "array",
-      "description": "Part of D_i: Other EAP IDs this package depends on.",
+      "description": "Part of D_i: Other ECM IDs this package depends on.",
       "items": { "type": "string" }
     },
     "compatibility": {

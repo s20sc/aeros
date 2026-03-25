@@ -4,8 +4,8 @@ import os
 sys.path.insert(0, os.path.dirname(__file__))
 
 from agent.agent import Agent
-from eap.loader import load_eap
-from eap.registry import list_skills, list_eaps, activate_eap, deactivate_eap, uninstall_eap
+from ecm.loader import load_ecm
+from ecm.registry import list_skills, list_ecms, activate_ecm, deactivate_ecm, uninstall_ecm
 from runtime.policy import block_skill, unblock_skill
 from runtime.audit import get_log
 from runtime.trace import print_trace, export_trace_json, save_trace, generate_mermaid, visualize, set_live_path
@@ -22,13 +22,13 @@ STATE_ICONS = {
 
 def print_help():
     print("""
-EAPOS Commands:
+AEROS Commands:
   <instruction>          Run a task (e.g. "make a dumpling", "pick up the cup")
-  install <path>         Install and activate an EAP
-  uninstall <eap_id>     Uninstall an EAP
-  activate <eap_id>      Activate a deactivated EAP
-  deactivate <eap_id>    Deactivate an EAP (skills unregistered)
-  list                   List all EAPs with state, skills, and permissions
+  install <path>         Install and activate an ECM
+  uninstall <ecm_id>     Uninstall an ECM
+  activate <ecm_id>      Activate a deactivated ECM
+  deactivate <ecm_id>    Deactivate an ECM (skills unregistered)
+  list                   List all ECMs with state, skills, and permissions
   block <skill>          Block a skill (operator override)
   unblock <skill>        Unblock a skill
   audit                  Show policy audit log
@@ -45,17 +45,17 @@ EAPOS Commands:
 
 
 def print_list():
-    eaps = list_eaps()
-    if not eaps:
-        print("No EAPs installed.\n")
+    ecms = list_ecms()
+    if not ecms:
+        print("No ECMs installed.\n")
         return
 
-    print("\n=== LOADED EAPS ===\n")
-    for eap_id, meta in eaps.items():
+    print("\n=== LOADED ECMS ===\n")
+    for ecm_id, meta in ecms.items():
         config = meta["config"]
         state = meta["state"]
         icon = STATE_ICONS.get(state, "[?]")
-        print(f"{icon} EAP: {eap_id}")
+        print(f"{icon} ECM: {ecm_id}")
         print(f"    version: {config['version']}")
         print(f"    state:   {state}")
         print(f"    description: {config.get('description', '')}")
@@ -87,13 +87,13 @@ def main():
     if os.path.isdir(ui_dir):
         set_live_path(os.path.join(ui_dir, "latest_trace.json"))
 
-    # Auto-load example EAPs
+    # Auto-load example ECMs
     for name in sorted(os.listdir(examples_dir)):
-        eap_path = os.path.join(examples_dir, name)
-        if os.path.isdir(eap_path) and os.path.exists(os.path.join(eap_path, "eap.yaml")):
-            load_eap(eap_path)
+        ecm_path = os.path.join(examples_dir, name)
+        if os.path.isdir(ecm_path) and os.path.exists(os.path.join(ecm_path, "ecm.yaml")):
+            load_ecm(ecm_path)
 
-    print("\nEAPOS Runtime v1.0")
+    print("\nAEROS Runtime v1.0")
     print('Type "help" for commands\n')
 
     while True:
@@ -120,26 +120,26 @@ def main():
                 else:
                     print(f"[Error]    Path not found: {path}")
                     continue
-            load_eap(path)
+            load_ecm(path)
         elif line.startswith("uninstall "):
-            eap_id = line[10:].strip()
-            ok, err = uninstall_eap(eap_id)
+            ecm_id = line[10:].strip()
+            ok, err = uninstall_ecm(ecm_id)
             if ok:
-                print(f"[EAP]      Uninstalled: {eap_id}")
+                print(f"[ECM]      Uninstalled: {ecm_id}")
             else:
                 print(f"[Error]    {err}")
         elif line.startswith("activate "):
-            eap_id = line[9:].strip()
-            ok, err = activate_eap(eap_id)
+            ecm_id = line[9:].strip()
+            ok, err = activate_ecm(ecm_id)
             if ok:
-                print(f"[EAP]      Activated: {eap_id}")
+                print(f"[ECM]      Activated: {ecm_id}")
             else:
                 print(f"[Error]    {err}")
         elif line.startswith("deactivate "):
-            eap_id = line[11:].strip()
-            ok, err = deactivate_eap(eap_id)
+            ecm_id = line[11:].strip()
+            ok, err = deactivate_ecm(ecm_id)
             if ok:
-                print(f"[EAP]      Deactivated: {eap_id}")
+                print(f"[ECM]      Deactivated: {ecm_id}")
             else:
                 print(f"[Error]    {err}")
         elif line == "audit":
@@ -148,7 +148,7 @@ def main():
                 print("\nAudit Log:")
                 for i, entry in enumerate(log, 1):
                     reason_str = f" reason={entry['reason']}" if entry['reason'] else ""
-                    print(f"  {i}. [{entry['time']}] skill={entry['skill']} eap={entry['eap']} decision={entry['decision']}{reason_str}")
+                    print(f"  {i}. [{entry['time']}] skill={entry['skill']} ecm={entry['eap']} decision={entry['decision']}{reason_str}")
                 print()
             else:
                 print("No audit entries yet.\n")

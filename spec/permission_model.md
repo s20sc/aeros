@@ -1,10 +1,10 @@
 # Permission Model
 
-EAP does not own permissions.
+ECM does not own permissions.
 
 Permissions are:
 
-- declared by EAP
+- declared by ECM
 - granted by runtime
 - enforced globally
 
