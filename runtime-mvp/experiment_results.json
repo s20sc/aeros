@@ -1,14 +1,24 @@
 {
+  "metadata": {
+    "robot_backend": "pybullet",
+    "n_trials": 100,
+    "robot_model": "Franka Panda 7-DOF",
+    "simulation": "PyBullet"
+  },
   "experiment_1_replanning": {
     "static": {
       "success_rate": 70.0,
       "avg_steps": 3.7,
-      "avg_replan_count": 1.0
+      "avg_replan_count": 1.0,
+      "avg_ik_steps": 488.0,
+      "avg_robot_actions": 16.6
     },
     "dynamic": {
       "success_rate": 100.0,
       "avg_steps": 4.4,
-      "avg_replan_count": 5.0
+      "avg_replan_count": 5.0,
+      "avg_ik_steps": 561.4,
+      "avg_robot_actions": 19.1
     }
   },
   "experiment_2_retry_recovery": {
