@@ -2,5 +2,6 @@ __pycache__/
 *.pyc
 *.pyo
 .DS_Store
+.claude/
 trace_*.json
 latest_trace.json
