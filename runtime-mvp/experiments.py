@@ -387,7 +387,7 @@ def experiment_3_policy(n_trials=50):
         ("unsafe.cut", "com.aeros.unsafe"),  # high risk + knife actuator
     ]
 
-    # Cross-ECM violations: skill from wrong EAP (not in allowed_skills)
+    # Cross-ECM violations: skill from wrong ECM (not in allowed_skills)
     cross_ecm_violations = [
         ("dumpling.wrap", "com.aeros.clean_table"),
         ("clean.wipe", "com.aeros.dumpling"),
