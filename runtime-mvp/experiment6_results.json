@@ -1,0 +1,23 @@
+{
+  "experiment": "6_hotswap",
+  "n_trials": 100,
+  "overall_success": 100,
+  "overall_ci": [
+    96.3,
+    100.0
+  ],
+  "swap_success": 100,
+  "swap_success_ci": [
+    96.3,
+    100.0
+  ],
+  "post_swap_success": 100,
+  "post_swap_ci": [
+    96.3,
+    100.0
+  ],
+  "swap_latency_mean_ms": 0.0007,
+  "swap_latency_max_ms": 0.0012,
+  "avg_total_steps": 8.2,
+  "avg_total_replans": 1.2
+}
