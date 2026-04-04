@@ -22,7 +22,7 @@ A capability-packaged operating architecture for embodied intelligent systems.
 |             ECM Manager                       |
 |   +----------+ +----------+ +----------+      |
 |   | dumpling | |pick_place| |  clean   |      |
-|   | ECM      | | EAP      | |  EAP     |      |
+|   | ECM      | | ECM      | |  ECM     |      |
 |   +----------+ +----------+ +----------+      |
 +-----------------------------------------------+
 |             Runtime Layer                     |

@@ -37,7 +37,7 @@ def load_ecm(path):
         risk = sp.get("risk_level", "low")
         print(f"[ECM]        {sk}: actuators={acts}, risk={risk}")
 
-    # Register EAP (state: installed)
+    # Register ECM (state: installed)
     register_ecm(ecm_id, config, permissions, os.path.abspath(path))
     print(f"[ECM]      Installed: {ecm_id}")
 
