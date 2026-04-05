@@ -1,0 +1,15 @@
+id: com.aeros.fetch_object
+version: 1.0.0
+description: Navigate to target location, pick up object, and deliver to goal
+
+skills:
+  - fetch.plan
+  - fetch.navigate
+  - fetch.detect
+  - fetch.grasp
+  - fetch.deliver
+  - fetch.recover
+
+resources:
+  cpu: medium
+  gpu: required
