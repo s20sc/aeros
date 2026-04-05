@@ -1,0 +1,470 @@
+{
+  "metadata": {
+    "n_trials": 100,
+    "robot_backend": "mock"
+  },
+  "experiment_ablation": {
+    "AEROS (full)": {
+      "make_dumplings": {
+        "success_rate": 100.0,
+        "successes": 100,
+        "ci_lower": 96.3,
+        "ci_upper": 100.0,
+        "avg_steps": 4.4
+      },
+      "clean_table": {
+        "success_rate": 100.0,
+        "successes": 100,
+        "ci_lower": 96.3,
+        "ci_upper": 100.0,
+        "avg_steps": 2.8
+      },
+      "fetch_object": {
+        "success_rate": 100.0,
+        "successes": 100,
+        "ci_lower": 96.3,
+        "ci_upper": 100.0,
+        "avg_steps": 4.5
+      }
+    },
+    "AEROS-no-policy": {
+      "make_dumplings": {
+        "success_rate": 100.0,
+        "successes": 100,
+        "ci_lower": 96.3,
+        "ci_upper": 100.0,
+        "avg_steps": 4.4
+      },
+      "clean_table": {
+        "success_rate": 100.0,
+        "successes": 100,
+        "ci_lower": 96.3,
+        "ci_upper": 100.0,
+        "avg_steps": 2.8
+      },
+      "fetch_object": {
+        "success_rate": 100.0,
+        "successes": 100,
+        "ci_lower": 96.3,
+        "ci_upper": 100.0,
+        "avg_steps": 4.5
+      }
+    },
+    "AEROS-static-plan": {
+      "make_dumplings": {
+        "success_rate": 97.0,
+        "successes": 97,
+        "ci_lower": 91.5,
+        "ci_upper": 99.0,
+        "avg_steps": 5.3
+      },
+      "clean_table": {
+        "success_rate": 86.0,
+        "successes": 86,
+        "ci_lower": 77.9,
+        "ci_upper": 91.5,
+        "avg_steps": 3.5
+      },
+      "fetch_object": {
+        "success_rate": 100.0,
+        "successes": 100,
+        "ci_lower": 96.3,
+        "ci_upper": 100.0,
+        "avg_steps": 5.4
+      }
+    },
+    "AEROS-no-recovery": {
+      "make_dumplings": {
+        "success_rate": 97.0,
+        "successes": 97,
+        "ci_lower": 91.5,
+        "ci_upper": 99.0,
+        "avg_steps": 4.3
+      },
+      "clean_table": {
+        "success_rate": 86.0,
+        "successes": 86,
+        "ci_lower": 77.9,
+        "ci_upper": 91.5,
+        "avg_steps": 2.2
+      },
+      "fetch_object": {
+        "success_rate": 92.0,
+        "successes": 92,
+        "ci_lower": 85.0,
+        "ci_upper": 95.9,
+        "avg_steps": 4.2
+      }
+    }
+  },
+  "experiment_failure_boundary": {
+    "Flat Pipeline": {
+      "10%": {
+        "mean_success_rate": 90.7,
+        "per_task": {
+          "make_dumplings": 90.0,
+          "clean_table": 90.0,
+          "fetch_object": 92.0
+        },
+        "ci_lower": 86.8,
+        "ci_upper": 93.5
+      },
+      "20%": {
+        "mean_success_rate": 83.0,
+        "per_task": {
+          "make_dumplings": 80.0,
+          "clean_table": 86.0,
+          "fetch_object": 83.0
+        },
+        "ci_lower": 78.3,
+        "ci_upper": 86.8
+      },
+      "30%": {
+        "mean_success_rate": 65.7,
+        "per_task": {
+          "make_dumplings": 67.0,
+          "clean_table": 62.0,
+          "fetch_object": 68.0
+        },
+        "ci_lower": 60.1,
+        "ci_upper": 70.8
+      },
+      "40%": {
+        "mean_success_rate": 55.3,
+        "per_task": {
+          "make_dumplings": 56.0,
+          "clean_table": 57.0,
+          "fetch_object": 53.0
+        },
+        "ci_lower": 49.7,
+        "ci_upper": 60.9
+      },
+      "50%": {
+        "mean_success_rate": 46.7,
+        "per_task": {
+          "make_dumplings": 44.0,
+          "clean_table": 53.0,
+          "fetch_object": 43.0
+        },
+        "ci_lower": 41.1,
+        "ci_upper": 52.3
+      },
+      "60%": {
+        "mean_success_rate": 40.7,
+        "per_task": {
+          "make_dumplings": 36.0,
+          "clean_table": 43.0,
+          "fetch_object": 43.0
+        },
+        "ci_lower": 35.3,
+        "ci_upper": 46.3
+      },
+      "70%": {
+        "mean_success_rate": 30.7,
+        "per_task": {
+          "make_dumplings": 35.0,
+          "clean_table": 24.0,
+          "fetch_object": 33.0
+        },
+        "ci_lower": 25.7,
+        "ci_upper": 36.1
+      },
+      "80%": {
+        "mean_success_rate": 20.3,
+        "per_task": {
+          "make_dumplings": 22.0,
+          "clean_table": 18.0,
+          "fetch_object": 21.0
+        },
+        "ci_lower": 16.2,
+        "ci_upper": 25.2
+      },
+      "90%": {
+        "mean_success_rate": 9.0,
+        "per_task": {
+          "make_dumplings": 8.0,
+          "clean_table": 11.0,
+          "fetch_object": 8.0
+        },
+        "ci_lower": 6.3,
+        "ci_upper": 12.8
+      }
+    },
+    "BT.CPP (retry=3)": {
+      "10%": {
+        "mean_success_rate": 100.0,
+        "per_task": {
+          "make_dumplings": 100.0,
+          "clean_table": 100.0,
+          "fetch_object": 100.0
+        },
+        "ci_lower": 98.7,
+        "ci_upper": 100.0
+      },
+      "20%": {
+        "mean_success_rate": 99.3,
+        "per_task": {
+          "make_dumplings": 99.0,
+          "clean_table": 100.0,
+          "fetch_object": 99.0
+        },
+        "ci_lower": 97.6,
+        "ci_upper": 99.8
+      },
+      "30%": {
+        "mean_success_rate": 96.3,
+        "per_task": {
+          "make_dumplings": 98.0,
+          "clean_table": 94.0,
+          "fetch_object": 97.0
+        },
+        "ci_lower": 93.6,
+        "ci_upper": 97.9
+      },
+      "40%": {
+        "mean_success_rate": 93.0,
+        "per_task": {
+          "make_dumplings": 94.0,
+          "clean_table": 92.0,
+          "fetch_object": 93.0
+        },
+        "ci_lower": 89.5,
+        "ci_upper": 95.4
+      },
+      "50%": {
+        "mean_success_rate": 86.0,
+        "per_task": {
+          "make_dumplings": 85.0,
+          "clean_table": 87.0,
+          "fetch_object": 86.0
+        },
+        "ci_lower": 81.6,
+        "ci_upper": 89.5
+      },
+      "60%": {
+        "mean_success_rate": 78.3,
+        "per_task": {
+          "make_dumplings": 75.0,
+          "clean_table": 79.0,
+          "fetch_object": 81.0
+        },
+        "ci_lower": 73.3,
+        "ci_upper": 82.6
+      },
+      "70%": {
+        "mean_success_rate": 68.3,
+        "per_task": {
+          "make_dumplings": 69.0,
+          "clean_table": 63.0,
+          "fetch_object": 73.0
+        },
+        "ci_lower": 62.9,
+        "ci_upper": 73.3
+      },
+      "80%": {
+        "mean_success_rate": 47.3,
+        "per_task": {
+          "make_dumplings": 53.0,
+          "clean_table": 41.0,
+          "fetch_object": 48.0
+        },
+        "ci_lower": 41.8,
+        "ci_upper": 53.0
+      },
+      "90%": {
+        "mean_success_rate": 27.7,
+        "per_task": {
+          "make_dumplings": 24.0,
+          "clean_table": 30.0,
+          "fetch_object": 29.0
+        },
+        "ci_lower": 22.9,
+        "ci_upper": 33.0
+      }
+    },
+    "ProgPrompt (replan=3)": {
+      "10%": {
+        "mean_success_rate": 100.0,
+        "per_task": {
+          "make_dumplings": 100.0,
+          "clean_table": 100.0,
+          "fetch_object": 100.0
+        },
+        "ci_lower": 98.7,
+        "ci_upper": 100.0
+      },
+      "20%": {
+        "mean_success_rate": 99.3,
+        "per_task": {
+          "make_dumplings": 99.0,
+          "clean_table": 100.0,
+          "fetch_object": 99.0
+        },
+        "ci_lower": 97.6,
+        "ci_upper": 99.8
+      },
+      "30%": {
+        "mean_success_rate": 96.3,
+        "per_task": {
+          "make_dumplings": 98.0,
+          "clean_table": 94.0,
+          "fetch_object": 97.0
+        },
+        "ci_lower": 93.6,
+        "ci_upper": 97.9
+      },
+      "40%": {
+        "mean_success_rate": 93.0,
+        "per_task": {
+          "make_dumplings": 94.0,
+          "clean_table": 92.0,
+          "fetch_object": 93.0
+        },
+        "ci_lower": 89.5,
+        "ci_upper": 95.4
+      },
+      "50%": {
+        "mean_success_rate": 86.0,
+        "per_task": {
+          "make_dumplings": 85.0,
+          "clean_table": 87.0,
+          "fetch_object": 86.0
+        },
+        "ci_lower": 81.6,
+        "ci_upper": 89.5
+      },
+      "60%": {
+        "mean_success_rate": 78.3,
+        "per_task": {
+          "make_dumplings": 75.0,
+          "clean_table": 79.0,
+          "fetch_object": 81.0
+        },
+        "ci_lower": 73.3,
+        "ci_upper": 82.6
+      },
+      "70%": {
+        "mean_success_rate": 68.3,
+        "per_task": {
+          "make_dumplings": 69.0,
+          "clean_table": 63.0,
+          "fetch_object": 73.0
+        },
+        "ci_lower": 62.9,
+        "ci_upper": 73.3
+      },
+      "80%": {
+        "mean_success_rate": 47.3,
+        "per_task": {
+          "make_dumplings": 53.0,
+          "clean_table": 41.0,
+          "fetch_object": 48.0
+        },
+        "ci_lower": 41.8,
+        "ci_upper": 53.0
+      },
+      "90%": {
+        "mean_success_rate": 27.7,
+        "per_task": {
+          "make_dumplings": 24.0,
+          "clean_table": 30.0,
+          "fetch_object": 29.0
+        },
+        "ci_lower": 22.9,
+        "ci_upper": 33.0
+      }
+    },
+    "AEROS (full)": {
+      "10%": {
+        "mean_success_rate": 100.0,
+        "per_task": {
+          "make_dumplings": 100.0,
+          "clean_table": 100.0,
+          "fetch_object": 100.0
+        },
+        "ci_lower": 98.7,
+        "ci_upper": 100.0
+      },
+      "20%": {
+        "mean_success_rate": 100.0,
+        "per_task": {
+          "make_dumplings": 100.0,
+          "clean_table": 100.0,
+          "fetch_object": 100.0
+        },
+        "ci_lower": 98.7,
+        "ci_upper": 100.0
+      },
+      "30%": {
+        "mean_success_rate": 100.0,
+        "per_task": {
+          "make_dumplings": 100.0,
+          "clean_table": 100.0,
+          "fetch_object": 100.0
+        },
+        "ci_lower": 98.7,
+        "ci_upper": 100.0
+      },
+      "40%": {
+        "mean_success_rate": 100.0,
+        "per_task": {
+          "make_dumplings": 100.0,
+          "clean_table": 100.0,
+          "fetch_object": 100.0
+        },
+        "ci_lower": 98.7,
+        "ci_upper": 100.0
+      },
+      "50%": {
+        "mean_success_rate": 100.0,
+        "per_task": {
+          "make_dumplings": 100.0,
+          "clean_table": 100.0,
+          "fetch_object": 100.0
+        },
+        "ci_lower": 98.7,
+        "ci_upper": 100.0
+      },
+      "60%": {
+        "mean_success_rate": 99.7,
+        "per_task": {
+          "make_dumplings": 100.0,
+          "clean_table": 100.0,
+          "fetch_object": 99.0
+        },
+        "ci_lower": 98.1,
+        "ci_upper": 99.9
+      },
+      "70%": {
+        "mean_success_rate": 99.3,
+        "per_task": {
+          "make_dumplings": 100.0,
+          "clean_table": 99.0,
+          "fetch_object": 99.0
+        },
+        "ci_lower": 97.6,
+        "ci_upper": 99.8
+      },
+      "80%": {
+        "mean_success_rate": 97.0,
+        "per_task": {
+          "make_dumplings": 99.0,
+          "clean_table": 96.0,
+          "fetch_object": 96.0
+        },
+        "ci_lower": 94.4,
+        "ci_upper": 98.4
+      },
+      "90%": {
+        "mean_success_rate": 82.3,
+        "per_task": {
+          "make_dumplings": 86.0,
+          "clean_table": 87.0,
+          "fetch_object": 74.0
+        },
+        "ci_lower": 77.6,
+        "ci_upper": 86.2
+      }
+    }
+  }
+}

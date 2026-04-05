@@ -1,0 +1,150 @@
+{
+  "metadata": {
+    "n_trials": 100,
+    "robot_backend": "mock"
+  },
+  "experiment_4b_baseline": {
+    "Flat Pipeline": {
+      "make_dumplings": {
+        "success_rate": 73.0,
+        "successes": 73,
+        "ci_lower": 63.6,
+        "ci_upper": 80.7,
+        "avg_steps": 2.7
+      },
+      "clean_table": {
+        "success_rate": 57.0,
+        "successes": 57,
+        "ci_lower": 47.2,
+        "ci_upper": 66.3,
+        "avg_steps": 1.6
+      },
+      "fetch_object": {
+        "success_rate": 73.0,
+        "successes": 73,
+        "ci_lower": 63.6,
+        "ci_upper": 80.7,
+        "avg_steps": 3.7
+      }
+    },
+    "BT.CPP (retry=3)": {
+      "make_dumplings": {
+        "success_rate": 95.0,
+        "successes": 95,
+        "ci_lower": 88.8,
+        "ci_upper": 97.8,
+        "avg_steps": 3.3
+      },
+      "clean_table": {
+        "success_rate": 90.0,
+        "successes": 90,
+        "ci_lower": 82.6,
+        "ci_upper": 94.5,
+        "avg_steps": 2.5
+      },
+      "fetch_object": {
+        "success_rate": 93.0,
+        "successes": 93,
+        "ci_lower": 86.3,
+        "ci_upper": 96.6,
+        "avg_steps": 4.3
+      }
+    },
+    "ProgPrompt (replan=3)": {
+      "make_dumplings": {
+        "success_rate": 95.0,
+        "successes": 95,
+        "ci_lower": 88.8,
+        "ci_upper": 97.8,
+        "avg_steps": 6.0
+      },
+      "clean_table": {
+        "success_rate": 90.0,
+        "successes": 90,
+        "ci_lower": 82.6,
+        "ci_upper": 94.5,
+        "avg_steps": 4.2
+      },
+      "fetch_object": {
+        "success_rate": 93.0,
+        "successes": 93,
+        "ci_lower": 86.3,
+        "ci_upper": 96.6,
+        "avg_steps": 5.7
+      }
+    },
+    "AEROS (full)": {
+      "make_dumplings": {
+        "success_rate": 100.0,
+        "successes": 100,
+        "ci_lower": 96.3,
+        "ci_upper": 100.0,
+        "avg_steps": 4.5
+      },
+      "clean_table": {
+        "success_rate": 100.0,
+        "successes": 100,
+        "ci_lower": 96.3,
+        "ci_upper": 100.0,
+        "avg_steps": 3.0
+      },
+      "fetch_object": {
+        "success_rate": 100.0,
+        "successes": 100,
+        "ci_lower": 96.3,
+        "ci_upper": 100.0,
+        "avg_steps": 4.6
+      }
+    }
+  },
+  "experiment_5b_cross_task": {
+    "make_dumplings": {
+      "static": {
+        "success_rate": 72.0,
+        "successes": 72,
+        "ci_lower": 62.5,
+        "ci_upper": 79.9,
+        "avg_steps": 4.7
+      },
+      "dynamic": {
+        "success_rate": 100.0,
+        "successes": 100,
+        "ci_lower": 96.3,
+        "ci_upper": 100.0,
+        "avg_steps": 4.5
+      }
+    },
+    "clean_table": {
+      "static": {
+        "success_rate": 51.0,
+        "successes": 51,
+        "ci_lower": 41.3,
+        "ci_upper": 60.6,
+        "avg_steps": 2.5
+      },
+      "dynamic": {
+        "success_rate": 100.0,
+        "successes": 100,
+        "ci_lower": 96.3,
+        "ci_upper": 100.0,
+        "avg_steps": 3.1
+      }
+    },
+    "fetch_object": {
+      "static": {
+        "success_rate": 63.0,
+        "successes": 63,
+        "ci_lower": 53.2,
+        "ci_upper": 71.8,
+        "avg_steps": 4.6
+      },
+      "dynamic": {
+        "success_rate": 100.0,
+        "successes": 100,
+        "ci_lower": 96.3,
+        "ci_upper": 100.0,
+        "avg_steps": 4.9
+      }
+    }
+  }
+}
