@@ -6,6 +6,7 @@ skills:
   - clean.plan
   - clean.wipe
   - clean.organize
+  - clean.recover
 
 resources:
   cpu: low

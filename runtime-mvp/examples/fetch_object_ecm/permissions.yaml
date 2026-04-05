@@ -1,0 +1,24 @@
+allowed_skills:
+  - fetch.plan
+  - fetch.navigate
+  - fetch.detect
+  - fetch.grasp
+  - fetch.deliver
+  - fetch.recover
+
+skill_permissions:
+  fetch.navigate:
+    actuators: [base]
+    risk_level: low
+  fetch.detect:
+    actuators: []
+    risk_level: low
+  fetch.grasp:
+    actuators: [gripper, arm]
+    risk_level: medium
+  fetch.deliver:
+    actuators: [base, gripper]
+    risk_level: low
+  fetch.recover:
+    actuators: [base, arm]
+    risk_level: low

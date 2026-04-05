@@ -6,6 +6,8 @@ def plan(instruction):
         return "dumpling.plan"
     elif "clean" in instruction or "table" in instruction:
         return "clean.plan"
+    elif "fetch" in instruction or "bring" in instruction or "retrieve" in instruction:
+        return "fetch.plan"
     elif "pick" in instruction:
         return "pick_place.detect"
     elif "place" in instruction:

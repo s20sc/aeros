@@ -2,6 +2,7 @@ allowed_skills:
   - clean.plan
   - clean.wipe
   - clean.organize
+  - clean.recover
 
 skill_permissions:
   clean.plan:
@@ -15,6 +16,12 @@ skill_permissions:
     risk_level: low
 
   clean.organize:
+    actuators:
+      - arm
+      - gripper
+    risk_level: low
+
+  clean.recover:
     actuators:
       - arm
       - gripper

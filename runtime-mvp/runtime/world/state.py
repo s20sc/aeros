@@ -17,6 +17,12 @@ class WorldState:
         self.table_wiped = False
         self.table_organized = False
 
+        # Fetch object task
+        self.robot_at_target = False
+        self.object_detected = False
+        self.object_grasped = False
+        self.object_delivered = False
+
     def snapshot(self):
         return {k: v for k, v in self.__dict__.items() if not k.startswith("_")}
 
