@@ -148,7 +148,7 @@ def main():
                 print("\nAudit Log:")
                 for i, entry in enumerate(log, 1):
                     reason_str = f" reason={entry['reason']}" if entry['reason'] else ""
-                    print(f"  {i}. [{entry['time']}] skill={entry['skill']} ecm={entry['eap']} decision={entry['decision']}{reason_str}")
+                    print(f"  {i}. [{entry['time']}] skill={entry['skill']} ecm={entry['ecm']} decision={entry['decision']}{reason_str}")
                 print()
             else:
                 print("No audit entries yet.\n")

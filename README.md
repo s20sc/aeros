@@ -4,6 +4,8 @@
 
 A capability-packaged operating architecture for embodied intelligent systems.
 
+**Project Page**: [https://s20sc.github.io/aeros-project](https://s20sc.github.io/aeros-project) | **Paper**: [arXiv:2604.07039](https://arxiv.org/abs/2604.07039)
+
 > **One Robot = One Persistent Agent. Capabilities = Installable Packages.**
 
 ### [Watch the Demo](https://youtu.be/5KdKa5meWgw)
@@ -225,7 +227,7 @@ aeros/
 ├── examples/       Reference ECM definitions (YAML)
 ├── runtime-mvp/    Working runtime implementation (Python)
 │   ├── agent/        Agent + planner + re-planning loop
-│   ├── eap/          ECM loader + registry + lifecycle
+│   ├── ecm/          ECM loader + registry + lifecycle
 │   ├── runtime/      Policy, audit, trace, robot API, world state, perception
 │   └── examples/     4 ECMs: dumpling, pick_place, clean_table, unsafe
 ├── ui/             Web-based trace viewer + live dashboard
@@ -238,7 +240,8 @@ aeros/
 
 This repository provides the reference implementation for:
 
-> *Toward Single-Agent Robots: A Capability-Packaged Operating Architecture (AEROS) with Policy-Separated Runtime*
+> *AEROS: A Runtime Architecture for Embodied Agents with Installable Capability Modules*
+> [arXiv:2604.07039](https://arxiv.org/abs/2604.07039)
 
 The formal ECM definition $E_i = (\mathcal{C}_i, \mathcal{S}_i, \mathcal{M}_i, \mathcal{P}_i, \mathcal{D}_i)$ from the paper maps to:
 
@@ -269,9 +272,10 @@ This is a **lightweight reference implementation** intended to demonstrate the a
 If you use this code in your research, please cite:
 
 ```bibtex
-@inproceedings{qin2026aeros,
-  title={Toward Single-Agent Robots: A Capability-Packaged Operating Architecture (AEROS) with Policy-Separated Runtime},
-  author={Qin, Xue and Luan, Simin and Yang, Cong and Li, Zhijun},
+@article{qin2026aeros,
+  title={AEROS: A Runtime Architecture for Embodied Agents with Installable Capability Modules},
+  author={Qin, Xue and Luan, Simin and See, John and Yang, Cong and Li, Zhijun},
+  journal={arXiv preprint arXiv:2604.07039},
   year={2026}
 }
 ```
