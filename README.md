@@ -4,6 +4,8 @@
 
 A capability-packaged operating architecture for embodied intelligent systems.
 
+> **Looking for the full production runtime?** See [aeros-runtime](https://github.com/s20sc/aeros-runtime) — the complete implementation with governance engine, evolution engine, fleet coordination, benchmarking, provider SDK, and marketplace.
+
 **Project Page**: [https://s20sc.github.io/aeros-project](https://s20sc.github.io/aeros-project) | **Paper**: [arXiv:2604.07039](https://arxiv.org/abs/2604.07039)
 
 > **One Robot = One Persistent Agent. Capabilities = Installable Packages.**
